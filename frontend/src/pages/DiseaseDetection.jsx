@@ -72,7 +72,8 @@ const DiseaseDetection = () => {
         setLoading(true);
         try {
             // Send to Backend Gemini Vision
-            const res = await axios.post('http://127.0.0.1:5000/api/scan', {
+            const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:5000';
+            const res = await axios.post(`${API_URL}/api/scan`, {
                 image: image,
                 language: currentLang,
                 ...vitals,

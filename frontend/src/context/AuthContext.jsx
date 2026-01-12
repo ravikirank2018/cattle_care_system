@@ -20,7 +20,8 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (username, password) => {
         try {
-            const res = await axios.post('http://127.0.0.1:5000/api/auth/login', { username, password });
+            const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:5000';
+            const res = await axios.post(`${API_URL}/api/auth/login`, { username, password });
             if (res.data.success) {
                 const userData = { username: res.data.username }; // Adjust if backend sends full user object
                 const token = res.data.token;
@@ -42,7 +43,8 @@ export const AuthProvider = ({ children }) => {
 
     const register = async (username, password) => {
         try {
-            await axios.post('http://127.0.0.1:5000/api/auth/register', { username, password });
+            const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:5000';
+            await axios.post(`${API_URL}/api/auth/register`, { username, password });
             return await login(username, password);
         } catch (error) {
             console.error("Registration Error", error);

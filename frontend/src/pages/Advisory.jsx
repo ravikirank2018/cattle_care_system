@@ -38,7 +38,8 @@ const Advisory = () => {
 
         try {
             // Send entire history for context
-            const res = await axios.post('http://127.0.0.1:5000/api/advisory', {
+            const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:5000';
+            const res = await axios.post(`${API_URL}/api/advisory`, {
                 history: newHistory,
                 language: currentLang
             }, { timeout: 60000 });

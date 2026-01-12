@@ -50,7 +50,8 @@ const SmartTrade = () => {
         setQrUrl('');
         try {
             const payload = { ...formData, language: currentLang };
-            const res = await axios.post('http://127.0.0.1:5000/api/price', payload);
+            const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:5000';
+            const res = await axios.post(`${API_URL}/api/price`, payload);
             if (res.data.success) {
                 setResult(res.data);
                 // Generate QR Code with summary for Google Lens

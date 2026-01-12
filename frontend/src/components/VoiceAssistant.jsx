@@ -53,7 +53,8 @@ const VoiceAssistant = ({ currentLang, onNavigate }) => {
     const processVoice = async (transcript) => {
         try {
             // Call Flask Backend
-            const res = await axios.post('http://127.0.0.1:5000/api/chat', {
+            const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:5000';
+            const res = await axios.post(`${API_URL}/api/chat`, {
                 transcript: transcript,
                 language: currentLang
             });
