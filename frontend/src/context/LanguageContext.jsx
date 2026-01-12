@@ -165,7 +165,25 @@ const translations = {
         'lbl-basis-desc': 'Why was this status chosen?',
         'opt-yes': 'Yes',
         'opt-no': 'No',
-        'opt-abnormal': 'Abnormal / Heavy'
+        'opt-abnormal': 'Abnormal / Heavy',
+
+        // Skin Pre-Check
+        'skin-check-title': 'Skin Health Pre-Check',
+        'q-skin-rash': 'Do you see any rashes, pimples, or skin lesions?',
+        'q-from-birth': 'Is this mark present from birth?',
+        'q-skin-change': 'Has there been any recent change (size, color, bleeding)?',
+        'msg-benign': 'Likely a benign birthmark. You may proceed to scan if you are still concerned.',
+        'msg-consult': 'We recommend running a disease scan for accurate diagnosis.',
+        'btn-continue': 'Continue',
+        'btn-check-disease': 'Check Disease',
+
+        // Advisory Voice
+        'adv-tab-general': 'General Advisory',
+        'adv-tab-nutrition': 'Nutrition Advisory',
+        'adv-listening': 'Listening...',
+        'adv-speak-now': 'Tap microphone and speak',
+        'adv-processing': 'Thinking...',
+        'adv-replying': 'Speaking...'
     },
     'hi-IN': {
         'title-dashboard': 'पशु फार्म डैशबोर्ड',

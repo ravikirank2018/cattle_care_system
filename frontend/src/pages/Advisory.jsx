@@ -6,8 +6,10 @@ import ReactMarkdown from 'react-markdown';
 
 const Advisory = () => {
     const { t, currentLang } = useLanguage();
+    const [advisoryType, setAdvisoryType] = useState('general'); // 'general' or 'nutrition'
     const [messages, setMessages] = useState([]);
-    const [input, setInput] = useState('');
+    const [isListening, setIsListening] = useState(false);
+    const [isSpeaking, setIsSpeaking] = useState(false);
     const [loading, setLoading] = useState(false);
     const scrollRef = useRef(null);
 
@@ -26,40 +28,46 @@ const Advisory = () => {
         }
     }, [messages]);
 
-    const handleSend = async () => {
-        if (!input.trim()) return;
+    const speakResponse = (text) => {
+        if (!('speechSynthesis' in window)) return;
+        window.speechSynthesis.cancel(); // Stop previous
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = currentLang;
+        utterance.onstart = () => setIsSpeaking(true);
+        utterance.onend = () => setIsSpeaking(false);
+        window.speechSynthesis.speak(utterance);
+    };
 
-        const userMsg = { role: 'user', content: input };
+    const handleSend = async (text) => {
+        if (!text.trim()) return;
+
+        const userMsg = { role: 'user', content: text };
         const newHistory = [...messages, userMsg];
 
         setMessages(newHistory);
-        setInput('');
         setLoading(true);
 
         try {
-            // Send entire history for context
             const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:5000';
             const res = await axios.post(`${API_URL}/api/advisory`, {
                 history: newHistory,
-                language: currentLang
+                language: currentLang,
+                type: advisoryType
             }, { timeout: 60000 });
 
             if (res.data.success) {
-                const botMsg = { role: 'model', content: res.data.data };
+                const botReply = res.data.data;
+                const botMsg = { role: 'model', content: botReply };
                 setMessages(prev => [...prev, botMsg]);
+                speakResponse(botReply);
             }
         } catch (err) {
             console.error("Chat Error", err);
-            setMessages(prev => [...prev, { role: 'model', content: err.response?.data?.error || "Connection timed out. Please wait a moment and try again." }]);
+            const errorMsg = "Connection timed out. Please try again.";
+            setMessages(prev => [...prev, { role: 'model', content: errorMsg }]);
+            speakResponse(errorMsg);
         }
         setLoading(false);
-    };
-
-    const handleKeyPress = (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            handleSend();
-        }
     };
 
     const startListening = () => {
@@ -73,17 +81,17 @@ const Advisory = () => {
         recognition.continuous = false;
         recognition.interimResults = false;
 
-        recognition.onstart = () => setLoading(true); // Re-use loading state to show activity or add specific state
+        recognition.onstart = () => setIsListening(true);
 
         recognition.onresult = (event) => {
             const transcript = event.results[0][0].transcript;
-            setInput(prev => prev + (prev ? ' ' : '') + transcript);
+            handleSend(transcript);
         };
 
-        recognition.onend = () => setLoading(false);
+        recognition.onend = () => setIsListening(false);
         recognition.onerror = (e) => {
             console.error(e);
-            setLoading(false);
+            setIsListening(false);
         };
 
         recognition.start();
@@ -93,63 +101,80 @@ const Advisory = () => {
         <div className="h-[calc(100vh-2rem)] flex flex-col animate-fade-in pb-4">
             <header className="mb-4 shrink-0">
                 <h1 className="text-4xl font-bold text-gray-800">{t('title-advisory')}</h1>
-                <p className="text-gray-500 mt-2">{t('trade-subtitle')}</p>
+                {/* TABS */}
+                <div className="flex gap-4 mt-6">
+                    <button
+                        onClick={() => setAdvisoryType('general')}
+                        className={`flex-1 py-3 rounded-2xl font-bold transition-all ${advisoryType === 'general' ? 'bg-indigo-600 text-white shadow-lg scale-105' : 'bg-white text-gray-500 border hover:bg-indigo-50'}`}
+                    >
+                        🩺 {t('adv-tab-general')}
+                    </button>
+                    <button
+                        onClick={() => setAdvisoryType('nutrition')}
+                        className={`flex-1 py-3 rounded-2xl font-bold transition-all ${advisoryType === 'nutrition' ? 'bg-emerald-600 text-white shadow-lg scale-105' : 'bg-white text-gray-500 border hover:bg-emerald-50'}`}
+                    >
+                        🥗 {t('adv-tab-nutrition')}
+                    </button>
+                </div>
             </header>
 
             {/* CHAT AREA */}
-            <div className="flex-1 glass-card p-4 overflow-y-auto mb-4 flex flex-col gap-4 bg-white/50 backdrop-blur-sm border border-white/20 shadow-xl rounded-2xl">
+            <div className={`flex-1 glass-card p-4 overflow-y-auto mb-4 flex flex-col gap-4 bg-white/50 backdrop-blur-sm border border-white/20 shadow-xl rounded-2xl transition-all duration-500 ${isSpeaking ? 'bg-indigo-50/80 ring-2 ring-indigo-200' : ''}`}>
                 {messages.map((msg, idx) => (
                     <div key={idx} className={`flex gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${msg.role === 'user' ? 'bg-emerald-600 text-white' : 'bg-indigo-600 text-white'}`}>
-                            {msg.role === 'user' ? <User size={18} /> : <Bot size={18} />}
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 shadow-md ${msg.role === 'user' ? 'bg-gray-800 text-white' : advisoryType === 'nutrition' ? 'bg-emerald-600 text-white' : 'bg-indigo-600 text-white'}`}>
+                            {msg.role === 'user' ? <User size={20} /> : <Bot size={20} />}
                         </div>
-                        <div className={`p-3 px-4 rounded-2xl max-w-[80%] text-sm leading-relaxed shadow-sm ${msg.role === 'user'
-                            ? 'bg-emerald-600 text-white rounded-tr-none'
-                            : 'bg-white text-gray-800 border border-indigo-100 rounded-tl-none'
+                        <div className={`p-4 rounded-3xl max-w-[85%] text-base leading-relaxed shadow-sm ${msg.role === 'user'
+                            ? 'bg-gray-800 text-white rounded-tr-none'
+                            : 'bg-white text-gray-800 border border-gray-100 rounded-tl-none font-medium'
                             }`}>
-                            {/* Simple rendering for now, can be upgraded to Markdown */}
                             <div className="whitespace-pre-wrap">{msg.content}</div>
                         </div>
                     </div>
                 ))}
 
                 {loading && (
-                    <div className="flex gap-3">
-                        <div className="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center shrink-0"><Bot size={18} /></div>
-                        <div className="p-3 px-4 rounded-2xl bg-gray-100 text-gray-500 text-xs italic flex items-center gap-2">
-                            <Loader2 size={14} className="animate-spin" /> {t('adv-typing')}
+                    <div className="flex justify-center py-8">
+                        <div className="flex flex-col items-center gap-3 animate-pulse">
+                            <div className="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
+                                <Loader2 size={24} className="animate-spin" />
+                            </div>
+                            <span className="text-gray-500 font-medium">{t('adv-processing')}</span>
                         </div>
                     </div>
                 )}
+
+                {isSpeaking && !loading && (
+                    <div className="flex justify-center py-4 sticky bottom-0">
+                        <div className="bg-indigo-600 text-white px-6 py-2 rounded-full shadow-lg flex items-center gap-3 animate-bounce">
+                            <Mic size={16} /> {t('adv-replying')}
+                        </div>
+                    </div>
+                )}
+
                 <div ref={scrollRef} />
             </div>
 
-            {/* INPUT AREA */}
-            <div className="glass-card p-2 flex gap-2 items-center shrink-0 pr-24">
+            {/* VOICE INTERACTION AREA */}
+            <div className="shrink-0 flex justify-center pb-6">
                 <button
                     onClick={startListening}
-                    disabled={loading}
-                    className="p-3 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-xl transition-all disabled:opacity-50"
-                    title="Speak"
+                    disabled={loading || isSpeaking}
+                    className={`w-24 h-24 rounded-full flex flex-col items-center justify-center transition-all duration-300 shadow-2xl ${isListening
+                        ? 'bg-red-500 ring-8 ring-red-200 scale-110 animate-pulse'
+                        : loading
+                            ? 'bg-gray-300 cursor-not-allowed'
+                            : advisoryType === 'nutrition'
+                                ? 'bg-gradient-to-br from-emerald-500 to-emerald-700 hover:scale-105 hover:shadow-emerald-500/50'
+                                : 'bg-gradient-to-br from-indigo-500 to-indigo-700 hover:scale-105 hover:shadow-indigo-500/50'
+                        }`}
                 >
-                    <Mic size={20} />
-                </button>
-                <input
-                    type="text"
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    onKeyDown={handleKeyPress}
-                    className="flex-1 bg-transparent border-none focus:ring-0 text-gray-800 placeholder-gray-400 px-4"
-                    placeholder={t('adv-chat-placeholder')}
-                />
-                <button
-                    onClick={handleSend}
-                    disabled={loading || !input.trim()}
-                    className="p-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-emerald-200"
-                >
-                    <Send size={20} />
+                    <Mic size={40} className="text-white mb-1" />
+                    {isListening && <span className="text-[10px] font-bold text-white uppercase tracking-widest">{t('adv-listening')}</span>}
                 </button>
             </div>
+            <p className="text-center text-gray-400 text-sm font-medium">{isListening ? 'Listening...' : t('adv-speak-now')}</p>
         </div>
     );
 };

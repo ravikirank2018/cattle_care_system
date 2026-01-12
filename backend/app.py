@@ -361,19 +361,56 @@ def advisory_chat():
         data = request.json
         history = data.get('history', [])
         language = data.get('language', 'en-US')
+        advisory_type = data.get('type', 'general') # 'general' or 'nutrition'
         
-        chat = model.start_chat(history=[
-            {"role": "user", "parts": [f"System Instruction: You are a vet expert. Answer in {language}."]}
-        ])
+        # Select System Prompt based on Type
+        if advisory_type == 'nutrition':
+            role_desc = "You are an expert Animal Nutritionist specializing in cattle feed optimization."
+        else:
+            role_desc = "You are an expert Veterinary Doctor specializing in general cattle health and management."
+
+        system_instruction = f"""
+        {role_desc}
+        Answer in {language}.
+        Keep responses concise (max 2-3 sentences) suitable for a Voice Assistant to read out loud.
+        Do not use markdown formatting like bold or lists, as it will be spoken.
+        Focus solely on the user's query regarding {advisory_type} advisory.
+        """
+
+        # Construct Chat with System Instruction
+        # Note: Gemini 1.5 Flash supports system instructions better via config, but we'll prepend it here for simplicity
+        chat_history = []
+        
+        # Convert frontend history format to Gemini format if needed, or just append instruction
+        # Ideally, we should set this as a system instruction if using the new SDK methods, 
+        # but for compatibility with previous implementation:
+        
+        # If history is empty/new, start with system prompt
+        current_history_objs = []
+        for msg in history[:-1]: # All except last user msg
+            current_history_objs.append({
+                "role": msg['role'],
+                "parts": [msg['content']]
+            })
+            
+        # Add System Instruction context to the latest message or history
+        # A simple way for single-turn or multi-turn is to prepend system context to the session
+        
+        chat = model.start_chat(history=current_history_objs)
+        
         last_message = history[-1]['content']
-        response = chat.send_message(last_message)
+        full_prompt = f"System: {system_instruction}\nUser: {last_message}"
         
+        response = chat.send_message(full_prompt)
+        
+        return jsonify({"success": True, "data": response.text})
+
     except ResourceExhausted:
-        # Should rarely happen now due to limiter
         return jsonify({"success": False, "error": "System is busy. Please try again in 10 seconds."}), 429
 
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        print(f"Advisory Error: {e}")
+        return jsonify({"error": "I encountered an error. Please try again."}), 500
 
 @app.route('/api/chat', methods=['POST'])
 def voice_assistant():

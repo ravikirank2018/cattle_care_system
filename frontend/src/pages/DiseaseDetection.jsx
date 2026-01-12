@@ -100,6 +100,41 @@ const DiseaseDetection = () => {
         if (mode === 'camera') setMode('camera'); // Keep camera open
     };
 
+    const [skinCheckStep, setSkinCheckStep] = useState(0); // 0: Q1, 1: Q2, 2: Q3, 3: Result, -1: Completed
+    const [skinCheckResult, setSkinCheckResult] = useState(null); // 'benign' or 'needs_scan'
+
+    // ... existing functions ...
+
+    const handleSkinCheckAnswer = (params) => {
+        const { question, answer } = params;
+
+        if (question === 'rash') {
+            if (answer === 'yes') setSkinCheckStep(1); // Go to Q2
+            else setSkinCheckStep(-1); // Skip to Scan
+        } else if (question === 'birth') {
+            if (answer === 'yes') setSkinCheckStep(2); // Go to Q3
+            else {
+                setSkinCheckResult('needs_scan');
+                setSkinCheckStep(3); // Result
+            }
+        } else if (question === 'change') {
+            if (answer === 'yes') {
+                setSkinCheckResult('needs_scan');
+                setSkinCheckStep(3);
+            } else {
+                setSkinCheckResult('benign');
+                setSkinCheckStep(3);
+            }
+        }
+    };
+
+    const resetSkinCheck = () => {
+        setSkinCheckStep(0);
+        setSkinCheckResult(null);
+        setResult(null);
+        setImage(null);
+    };
+
     return (
         <div className="space-y-8 animate-fade-in pb-10">
             <header className="flex justify-between items-end">
@@ -107,29 +142,102 @@ const DiseaseDetection = () => {
                     <h1 className="text-4xl font-bold text-gray-800">{t('title-disease')}</h1>
                     <p className="text-gray-500 mt-2">AI-Powered Veterinary Dermatologist</p>
                 </div>
-                <div className="flex gap-2">
-                    <button
-                        onClick={() => setMode('upload')}
-                        className={`px-4 py-2 rounded-xl text-sm font-bold transition-all ${mode === 'upload' ? 'bg-emerald-600 text-white shadow-lg' : 'bg-white text-gray-600 border'}`}
-                    >
-                        Upload Photo
-                    </button>
-                    <button
-                        onClick={handleCameraMode}
-                        className={`px-4 py-2 rounded-xl text-sm font-bold transition-all flex items-center gap-2 ${mode === 'camera' ? 'bg-blue-600 text-white shadow-lg' : 'bg-white text-gray-600 border'}`}
-                    >
-                        <Camera size={16} /> Live Camera
-                    </button>
-                </div>
+                {skinCheckStep === -1 && (
+                    <div className="flex gap-2">
+                        <button
+                            onClick={() => { resetSkinCheck(); }}
+                            className="px-4 py-2 rounded-xl text-sm font-bold bg-white text-gray-600 border hover:bg-gray-50 transition"
+                        >
+                            <RefreshCw size={16} />
+                        </button>
+                        <button
+                            onClick={() => setMode('upload')}
+                            className={`px-4 py-2 rounded-xl text-sm font-bold transition-all ${mode === 'upload' ? 'bg-emerald-600 text-white shadow-lg' : 'bg-white text-gray-600 border'}`}
+                        >
+                            Upload Photo
+                        </button>
+                        <button
+                            onClick={handleCameraMode}
+                            className={`px-4 py-2 rounded-xl text-sm font-bold transition-all flex items-center gap-2 ${mode === 'camera' ? 'bg-blue-600 text-white shadow-lg' : 'bg-white text-gray-600 border'}`}
+                        >
+                            <Camera size={16} /> Live Camera
+                        </button>
+                    </div>
+                )}
             </header>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 min-h-[500px]">
                 {/* INPUT AREA */}
                 <div className="glass-card flex flex-col items-center justify-center p-6 bg-white/40 overflow-hidden relative">
 
+                    {/* SKIN PRE-CHECK QUESTIONNAIRE */}
+                    {skinCheckStep >= 0 && (
+                        <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-xl border border-emerald-100 animate-fade-in-up">
+                            <h3 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                                <ScanSearch className="text-emerald-600" /> {t('skin-check-title')}
+                            </h3>
+
+                            {skinCheckStep === 0 && (
+                                <div className="space-y-6">
+                                    <p className="text-lg font-medium text-gray-700">{t('q-skin-rash')}</p>
+                                    <div className="flex gap-4">
+                                        <button onClick={() => handleSkinCheckAnswer({ question: 'rash', answer: 'yes' })} className="flex-1 py-3 bg-red-50 text-red-600 font-bold rounded-xl hover:bg-red-100 border border-red-200 transition">
+                                            {t('opt-yes')}
+                                        </button>
+                                        <button onClick={() => handleSkinCheckAnswer({ question: 'rash', answer: 'no' })} className="flex-1 py-3 bg-emerald-50 text-emerald-600 font-bold rounded-xl hover:bg-emerald-100 border border-emerald-200 transition">
+                                            {t('opt-no')}
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+
+                            {skinCheckStep === 1 && (
+                                <div className="space-y-6 animate-fade-in">
+                                    <p className="text-lg font-medium text-gray-700">{t('q-from-birth')}</p>
+                                    <div className="flex gap-4">
+                                        <button onClick={() => handleSkinCheckAnswer({ question: 'birth', answer: 'yes' })} className="flex-1 py-3 bg-blue-50 text-blue-600 font-bold rounded-xl hover:bg-blue-100 border border-blue-200 transition">
+                                            {t('opt-yes')}
+                                        </button>
+                                        <button onClick={() => handleSkinCheckAnswer({ question: 'birth', answer: 'no' })} className="flex-1 py-3 bg-red-50 text-red-600 font-bold rounded-xl hover:bg-red-100 border border-red-200 transition">
+                                            {t('opt-no')}
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+
+                            {skinCheckStep === 2 && (
+                                <div className="space-y-6 animate-fade-in">
+                                    <p className="text-lg font-medium text-gray-700">{t('q-skin-change')}</p>
+                                    <div className="flex gap-4">
+                                        <button onClick={() => handleSkinCheckAnswer({ question: 'change', answer: 'yes' })} className="flex-1 py-3 bg-red-50 text-red-600 font-bold rounded-xl hover:bg-red-100 border border-red-200 transition">
+                                            {t('opt-yes')}
+                                        </button>
+                                        <button onClick={() => handleSkinCheckAnswer({ question: 'change', answer: 'no' })} className="flex-1 py-3 bg-emerald-50 text-emerald-600 font-bold rounded-xl hover:bg-emerald-100 border border-emerald-200 transition">
+                                            {t('opt-no')}
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+
+                            {skinCheckStep === 3 && (
+                                <div className="space-y-6 animate-fade-in text-center">
+                                    <div className={`mx-auto w-16 h-16 rounded-full flex items-center justify-center mb-4 ${skinCheckResult === 'benign' ? 'bg-green-100 text-green-600' : 'bg-amber-100 text-amber-600'}`}>
+                                        {skinCheckResult === 'benign' ? <CheckCircle size={32} /> : <AlertTriangle size={32} />}
+                                    </div>
+                                    <p className="text-lg font-medium text-gray-800">
+                                        {skinCheckResult === 'benign' ? t('msg-benign') : t('msg-consult')}
+                                    </p>
+                                    <button onClick={() => setSkinCheckStep(-1)} className="w-full py-3 bg-gray-800 text-white font-bold rounded-xl hover:bg-gray-900 transition">
+                                        {skinCheckResult === 'benign' ? t('btn-continue') : t('btn-check-disease')}
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
                     {/* CAMERA VIEW */}
-                    {mode === 'camera' && !image && (
-                        <div className="w-full h-full flex flex-col items-center justify-center space-y-4">
+                    {skinCheckStep === -1 && mode === 'camera' && !image && (
+                        <div className="w-full h-full flex flex-col items-center justify-center space-y-4 animate-fade-in">
                             <div className="relative w-full aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl border-4 border-white/20">
                                 <Webcam
                                     audio={false}
@@ -149,8 +257,8 @@ const DiseaseDetection = () => {
                     )}
 
                     {/* UPLOAD VIEW */}
-                    {mode === 'upload' && !image && (
-                        <div className="w-full h-full flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-2xl hover:border-emerald-400 transition-colors p-10">
+                    {skinCheckStep === -1 && mode === 'upload' && !image && (
+                        <div className="w-full h-full flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-2xl hover:border-emerald-400 transition-colors p-10 animate-fade-in">
                             <input type="file" id="img-upload" hidden onChange={handleUpload} accept="image/*" />
                             <label htmlFor="img-upload" className="cursor-pointer flex flex-col items-center gap-6 text-gray-400 hover:text-emerald-600 transition group">
                                 <div className="p-6 bg-white rounded-full shadow-lg group-hover:scale-110 transition-transform"><Upload size={40} /></div>
@@ -389,10 +497,14 @@ const DiseaseDetection = () => {
                     {!image && !loading && !result && (
                         <div className="text-center text-gray-400">
                             <div className="w-32 h-32 mx-auto mb-6 bg-gray-100/50 rounded-full flex items-center justify-center border-2 border-dashed border-gray-300">
-                                <Camera size={48} className="opacity-20" />
+                                <ScanSearch size={48} className="opacity-20" />
                             </div>
                             <p className="font-medium text-lg text-gray-500">Ready to Scan</p>
-                            <p className="text-sm mt-1">Upload a photo or use live camera</p>
+                            {skinCheckStep < 0 ? (
+                                <p className="text-sm mt-1">Upload a photo to start AI Analysis</p>
+                            ) : (
+                                <p className="text-sm mt-1">Complete the pre-check to enable scanning</p>
+                            )}
                         </div>
                     )}
                 </div>
