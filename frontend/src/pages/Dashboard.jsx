@@ -73,53 +73,61 @@ const Dashboard = () => {
             </header>
 
             {/* QUICK ACTIONS WIDGETS */}
-            <h2 className="text-xl font-bold text-gray-800 mb-4 px-1">Quick Actions</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <Link to="/cows" className="glass-card p-5 group hover:-translate-y-1 transition duration-300 border-l-4 border-emerald-500">
-                    <div className="flex justify-between items-start mb-2">
-                        <div className="p-3 bg-emerald-100 rounded-xl text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition shadow-sm"><ScrollText size={24} /></div>
-                        <span className="bg-emerald-50 text-emerald-700 text-xs font-bold px-2 py-1 rounded-lg border border-emerald-100">{data.stats.total_cattle} Total</span>
-                    </div>
-                    <div className="mt-3">
-                        <h3 className="font-bold text-gray-800 group-hover:text-emerald-700 transition">{t('nav-cows')}</h3>
-                        <p className="text-sm text-gray-500 mt-1">Manage herd registry & health records</p>
-                    </div>
-                </Link>
+            <div className="mb-8">
+                <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                    <span className="w-1.5 h-8 bg-indigo-600 rounded-full"></span> Quick Actions
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <Link to="/cows" className="glass-card p-6 group hover:-translate-y-2 transition duration-500 relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/10 rounded-full blur-2xl -mr-10 -mt-10 transition group-hover:bg-emerald-500/20"></div>
+                        <div className="flex justify-between items-start mb-4 relative z-10">
+                            <div className="p-4 bg-gradient-to-br from-emerald-100 to-emerald-50 rounded-2xl text-emerald-600 group-hover:scale-110 transition duration-300 shadow-sm"><ScrollText size={28} /></div>
+                            <span className="bg-emerald-100/50 text-emerald-800 text-xs font-bold px-3 py-1 rounded-full border border-emerald-200/50">{data.stats.total_cattle} Total</span>
+                        </div>
+                        <div className="relative z-10">
+                            <h3 className="text-lg font-bold text-gray-800 group-hover:text-emerald-700 transition">{t('nav-cows')}</h3>
+                            <p className="text-sm text-gray-500 mt-1 leading-relaxed">Manage herd registry & health records</p>
+                        </div>
+                    </Link>
 
-                <Link to="/market-trade" className="glass-card p-5 group hover:-translate-y-1 transition duration-300 border-l-4 border-blue-500">
-                    <div className="flex justify-between items-start mb-2">
-                        <div className="p-3 bg-blue-100 rounded-xl text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition shadow-sm"><TrendingUp size={24} /></div>
-                        <span className="bg-blue-50 text-blue-700 text-xs font-bold px-2 py-1 rounded-lg border border-blue-100">{data.stats.active_trades || 3} Active</span>
-                    </div>
-                    <div className="mt-3">
-                        <h3 className="font-bold text-gray-800 group-hover:text-blue-700 transition">{t('dash-active-trades')}</h3>
-                        <p className="text-sm text-gray-500 mt-1">Fair price calculator & sales</p>
-                    </div>
-                </Link>
+                    <Link to="/market-trade" className="glass-card p-6 group hover:-translate-y-2 transition duration-500 relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/10 rounded-full blur-2xl -mr-10 -mt-10 transition group-hover:bg-blue-500/20"></div>
+                        <div className="flex justify-between items-start mb-4 relative z-10">
+                            <div className="p-4 bg-gradient-to-br from-blue-100 to-blue-50 rounded-2xl text-blue-600 group-hover:scale-110 transition duration-300 shadow-sm"><TrendingUp size={28} /></div>
+                            <span className="bg-blue-100/50 text-blue-800 text-xs font-bold px-3 py-1 rounded-full border border-blue-200/50">{data.stats.active_trades || 3} Active</span>
+                        </div>
+                        <div className="relative z-10">
+                            <h3 className="text-lg font-bold text-gray-800 group-hover:text-blue-700 transition">{t('dash-active-trades')}</h3>
+                            <p className="text-sm text-gray-500 mt-1 leading-relaxed">Fair price calculator & sales</p>
+                        </div>
+                    </Link>
 
-                <Link to="/grants" className="glass-card p-5 group hover:-translate-y-1 transition duration-300 border-l-4 border-amber-500">
-                    <div className="flex justify-between items-start mb-2">
-                        <div className="p-3 bg-amber-100 rounded-xl text-amber-600 group-hover:bg-amber-600 group-hover:text-white transition shadow-sm"><CircleDollarSign size={24} /></div>
-                        <span className="bg-amber-50 text-amber-700 text-xs font-bold px-2 py-1 rounded-lg border border-amber-100">{data.stats.available_grants || 4} New</span>
-                    </div>
-                    <div className="mt-3">
-                        <h3 className="font-bold text-gray-800 group-hover:text-amber-700 transition">{t('dash-govt-grants')}</h3>
-                        <p className="text-sm text-gray-500 mt-1">View available subsidies</p>
-                    </div>
-                </Link>
+                    <Link to="/grants" className="glass-card p-6 group hover:-translate-y-2 transition duration-500 relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/10 rounded-full blur-2xl -mr-10 -mt-10 transition group-hover:bg-amber-500/20"></div>
+                        <div className="flex justify-between items-start mb-4 relative z-10">
+                            <div className="p-4 bg-gradient-to-br from-amber-100 to-amber-50 rounded-2xl text-amber-600 group-hover:scale-110 transition duration-300 shadow-sm"><CircleDollarSign size={28} /></div>
+                            <span className="bg-amber-100/50 text-amber-800 text-xs font-bold px-3 py-1 rounded-full border border-amber-200/50">{data.stats.available_grants || 4} New</span>
+                        </div>
+                        <div className="relative z-10">
+                            <h3 className="text-lg font-bold text-gray-800 group-hover:text-amber-700 transition">{t('dash-govt-grants')}</h3>
+                            <p className="text-sm text-gray-500 mt-1 leading-relaxed">View available subsidies</p>
+                        </div>
+                    </Link>
 
-                <Link to="/health" className="glass-card p-5 group hover:-translate-y-1 transition duration-300 border-l-4 border-red-500">
-                    <div className="flex justify-between items-start mb-2">
-                        <div className="p-3 bg-red-100 rounded-xl text-red-600 group-hover:bg-red-600 group-hover:text-white transition shadow-sm"><Activity size={24} /></div>
-                        <span className={`text-xs font-bold px-2 py-1 rounded-lg border ${data.stats.health_risk_level === 'Low' ? 'bg-green-50 text-green-700 border-green-100' : 'bg-red-50 text-red-700 border-red-100'}`}>
-                            {data.stats.health_risk_level || 'Normal'} Risk
-                        </span>
-                    </div>
-                    <div className="mt-3">
-                        <h3 className="font-bold text-gray-800 group-hover:text-red-700 transition">{t('dash-health-ai')}</h3>
-                        <p className="text-sm text-gray-500 mt-1">Predictive analysis & checks</p>
-                    </div>
-                </Link>
+                    <Link to="/health" className="glass-card p-6 group hover:-translate-y-2 transition duration-500 relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-24 h-24 bg-red-500/10 rounded-full blur-2xl -mr-10 -mt-10 transition group-hover:bg-red-500/20"></div>
+                        <div className="flex justify-between items-start mb-4 relative z-10">
+                            <div className="p-4 bg-gradient-to-br from-red-100 to-red-50 rounded-2xl text-red-600 group-hover:scale-110 transition duration-300 shadow-sm"><Activity size={28} /></div>
+                            <span className={`text-xs font-bold px-3 py-1 rounded-full border ${data.stats.health_risk_level === 'Low' ? 'bg-green-100/50 text-green-700 border-green-200/50' : 'bg-red-100/50 text-red-700 border-red-200/50'}`}>
+                                {data.stats.health_risk_level || 'Normal'} Risk
+                            </span>
+                        </div>
+                        <div className="relative z-10">
+                            <h3 className="text-lg font-bold text-gray-800 group-hover:text-red-700 transition">{t('dash-health-ai')}</h3>
+                            <p className="text-sm text-gray-500 mt-1 leading-relaxed">Predictive analysis & checks</p>
+                        </div>
+                    </Link>
+                </div>
             </div>
 
             {/* 1. TOP STATS */}

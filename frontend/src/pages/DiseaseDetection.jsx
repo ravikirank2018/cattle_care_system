@@ -293,16 +293,16 @@ const DiseaseDetection = () => {
                 </div>
 
                 {/* VITALS INPUT FORM */}
-                <div className="glass-card p-6 bg-white/50">
-                    <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">📝 {t('pred-enter-vitals')} & {t('lbl-history')}</h3>
+                <div className="glass-card p-8 bg-white/40">
+                    <h3 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">📝 {t('pred-enter-vitals')} & {t('lbl-history')}</h3>
 
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
+                    <div className="grid grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700">{t('lbl-breed')}</label>
+                            <label className="block text-sm font-bold text-gray-600 mb-1">{t('lbl-breed')}</label>
                             <select
                                 value={vitals.breed}
                                 onChange={(e) => setVitals({ ...vitals, breed: e.target.value })}
-                                className="mt-1 w-full p-2 border rounded-lg bg-white focus:ring-2 focus:ring-emerald-500"
+                                className="input-field"
                             >
                                 <optgroup label={t('grp-desi')}>
                                     <option value="gir">Gir</option>
@@ -320,11 +320,11 @@ const DiseaseDetection = () => {
                             </select>
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700">{t('lbl-location')}</label>
+                            <label className="block text-sm font-bold text-gray-600 mb-1">{t('lbl-location')}</label>
                             <select
                                 value={vitals.location}
                                 onChange={(e) => setVitals({ ...vitals, location: e.target.value })}
-                                className="mt-1 w-full p-2 border rounded-lg bg-white focus:ring-2 focus:ring-emerald-500"
+                                className="input-field"
                             >
                                 {indianStates.map(state => (
                                     <option key={state} value={state}>{state}</option>
@@ -332,51 +332,51 @@ const DiseaseDetection = () => {
                             </select>
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700">{t('lbl-age')}</label>
+                            <label className="block text-sm font-bold text-gray-600 mb-1 bg-white/20">{t('lbl-age')}</label>
                             <input
                                 type="number"
                                 value={vitals.age}
                                 onChange={(e) => setVitals({ ...vitals, age: e.target.value })}
-                                className="mt-1 w-full p-2 border rounded-lg focus:ring-2 focus:ring-emerald-500"
+                                className="input-field"
                                 placeholder="e.g. 4"
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700">{t('lbl-weight')}</label>
+                            <label className="block text-sm font-bold text-gray-600 mb-1">{t('lbl-weight')}</label>
                             <input
                                 type="number"
                                 value={vitals.weight}
                                 onChange={(e) => setVitals({ ...vitals, weight: e.target.value })}
-                                className="mt-1 w-full p-2 border rounded-lg focus:ring-2 focus:ring-emerald-500"
+                                className="input-field"
                                 placeholder="kg"
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700">{t('lbl-temperature')}</label>
+                            <label className="block text-sm font-bold text-gray-600 mb-1">{t('lbl-temperature')}</label>
                             <input
                                 type="number"
                                 value={vitals.temperature}
                                 onChange={(e) => setVitals({ ...vitals, temperature: e.target.value })}
-                                className="mt-1 w-full p-2 border rounded-lg focus:ring-2 focus:ring-emerald-500"
+                                className="input-field"
                                 placeholder="°F"
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700">{t('lbl-milk-yield')}</label>
+                            <label className="block text-sm font-bold text-gray-600 mb-1">{t('lbl-milk-yield')}</label>
                             <input
                                 type="number"
                                 value={vitals.milkYield}
                                 onChange={(e) => setVitals({ ...vitals, milkYield: e.target.value })}
-                                className="mt-1 w-full p-2 border rounded-lg focus:ring-2 focus:ring-emerald-500"
+                                className="input-field"
                                 placeholder="Liters"
                             />
                         </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">{t('lbl-pregnancy')}</label>
+                        <div className="col-span-2 lg:col-span-3">
+                            <label className="block text-sm font-bold text-gray-600 mb-1">{t('lbl-pregnancy')}</label>
                             <select
                                 value={vitals.pregnancy}
                                 onChange={(e) => setVitals({ ...vitals, pregnancy: e.target.value })}
-                                className="mt-1 w-full p-2 border rounded-lg bg-white focus:ring-2 focus:ring-emerald-500"
+                                className="input-field"
                             >
                                 <option value="Unknown">{t('opt-select-status')}</option>
                                 <option value="Not Pregnant">{t('opt-no')}</option>

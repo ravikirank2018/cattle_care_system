@@ -157,24 +157,25 @@ const Advisory = () => {
             </div>
 
             {/* VOICE INTERACTION AREA */}
-            <div className="shrink-0 flex justify-center pb-6">
+            <div className="shrink-0 flex justify-center pb-8 pt-4">
                 <button
                     onClick={startListening}
                     disabled={loading || isSpeaking}
-                    className={`w-24 h-24 rounded-full flex flex-col items-center justify-center transition-all duration-300 shadow-2xl ${isListening
-                        ? 'bg-red-500 ring-8 ring-red-200 scale-110 animate-pulse'
+                    className={`w-28 h-28 rounded-full flex flex-col items-center justify-center transition-all duration-500 shadow-2xl relative group ${isListening
+                        ? 'bg-red-500 ring-8 ring-red-100 scale-110 animate-pulse'
                         : loading
-                            ? 'bg-gray-300 cursor-not-allowed'
+                            ? 'bg-gray-200 cursor-not-allowed'
                             : advisoryType === 'nutrition'
-                                ? 'bg-gradient-to-br from-emerald-500 to-emerald-700 hover:scale-105 hover:shadow-emerald-500/50'
-                                : 'bg-gradient-to-br from-indigo-500 to-indigo-700 hover:scale-105 hover:shadow-indigo-500/50'
+                                ? 'bg-gradient-to-br from-emerald-500 to-emerald-700 hover:scale-110 hover:shadow-emerald-500/40 hover:rotate-3'
+                                : 'bg-gradient-to-br from-indigo-500 to-indigo-700 hover:scale-110 hover:shadow-indigo-500/40 hover:-rotate-3'
                         }`}
                 >
-                    <Mic size={40} className="text-white mb-1" />
-                    {isListening && <span className="text-[10px] font-bold text-white uppercase tracking-widest">{t('adv-listening')}</span>}
+                    <div className="absolute inset-0 rounded-full bg-white opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
+                    <Mic size={44} className="text-white mb-2 drop-shadow-md" />
+                    {isListening && <span className="text-[10px] font-black text-white uppercase tracking-widest animate-pulse">Listening</span>}
                 </button>
             </div>
-            <p className="text-center text-gray-400 text-sm font-medium">{isListening ? 'Listening...' : t('adv-speak-now')}</p>
+            <p className="text-center text-gray-400 text-sm font-medium animate-pulse">{isListening ? 'Listening...' : t('adv-speak-now')}</p>
         </div>
     );
 };
