@@ -35,8 +35,8 @@ CORS(app)
 bcrypt = Bcrypt(app)
 
 # --- CONFIGURATION ---
-MONGO_URI = "mongodb+srv://cattel:cow123@cluster0.skggdfx.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
-DB_NAME = "cattle_care"
+# from pymongo import MongoClient
+# MONGO_URI = "..." 
 
 # API Key Rotation Setup
 API_KEYS = [
@@ -72,34 +72,32 @@ if available_models:
 
 model = genai.GenerativeModel(model_name)
 
-# --- DATABASE SETUP ---
-def get_db():
-    # Force permissive SSL for development environment issues
-    client = MongoClient(MONGO_URI, tlsAllowInvalidCertificates=True, tls=True)
-    db = client[DB_NAME]
-    return db
+# --- IN-MEMORY DATA STORAGE ---
+# Data persists only while server is running
+USERS = []
+CATTLE = []
+MILK_PRODUCTION = []
+HEALTH_LOGS = []
 
 def init_db():
-    db = get_db()
+    global CATTLE, MILK_PRODUCTION, HEALTH_LOGS
     
-    # Check if data exists
-    if db.cattle.count_documents({}) == 0:
-        sample_cattle = [
+    # Seed Data if empty
+    if not CATTLE:
+        CATTLE = [
             {"tag_id": "C001", "name": "Gauri", "breed": "Jersey", "health_score": 92, "last_checkup": "2023-10-26"},
             {"tag_id": "C002", "name": "Nandini", "breed": "Holstein", "health_score": 88, "last_checkup": "2023-10-25"},
             {"tag_id": "C003", "name": "Bhim", "breed": "Murrah", "health_score": 95, "last_checkup": "2023-10-27"}
         ]
-        db.cattle.insert_many(sample_cattle)
         
-        sample_milk = [
+        MILK_PRODUCTION = [
             {"date": "2023-10-20", "liters": 45.2},
             {"date": "2023-10-21", "liters": 46.5},
             {"date": "2023-10-22", "liters": 44.8},
             {"date": "2023-10-23", "liters": 47.0},
             {"date": datetime.now().strftime("%Y-%m-%d"), "liters": 48.5}
         ]
-        db.milk_production.insert_many(sample_milk)
-        print("Database Initialized with Seed Data.")
+        print("In-Memory Database Initialized with Seed Data.")
     else:
         print("Database already contains data.")
 
@@ -175,20 +173,20 @@ def get_zone(state):
 @app.route('/api/dashboard', methods=['GET'])
 def get_dashboard():
     try:
-        db = get_db()
-
         # 1. Total Cattle
-        total_cattle = db.cattle.count_documents({})
+        total_cattle = len(CATTLE)
 
         # 2. Avg Health
-        pipeline = [{"$group": {"_id": None, "avg_health": {"$avg": "$health_score"}}}]
-        avg_result = list(db.cattle.aggregate(pipeline))
-        avg_health = round(avg_result[0]['avg_health'], 1) if avg_result else 0
+        avg_health = 0
+        if total_cattle > 0:
+            total_score = sum([c.get('health_score', 0) for c in CATTLE])
+            avg_health = round(total_score / total_cattle, 1)
 
         # 3. Milk Yield (Latest)
-        latest_milk = db.milk_production.find().sort("date", -1).limit(7) # Get last 7 days for chart
-        latest_milk_list = list(latest_milk)
-        latest_milk_list.reverse() # Chronological order
+        # Sort by date descending
+        sorted_milk = sorted(MILK_PRODUCTION, key=lambda x: x['date'], reverse=True)
+        latest_milk_list = sorted_milk[:7]
+        latest_milk_list.reverse() # Chronological for chart
         
         milk_yield = latest_milk_list[-1]['liters'] if latest_milk_list else 0
         
@@ -196,9 +194,10 @@ def get_dashboard():
         milk_chart = [{"date": m['date'], "value": m['liters']} for m in latest_milk_list] if latest_milk_list else []
 
         # 4. Recent Alerts
-        logs = list(db.health_logs.find().sort("date", -1).limit(5))
-        alerts = [{"details": f"{l.get('disease', 'Unknown')} detected", "date": l.get('date')} for l in logs]
-        health_alerts_count = db.health_logs.count_documents({}) # or usually filter by 'unresolved'
+        sorted_logs = sorted(HEALTH_LOGS, key=lambda x: x['date'], reverse=True)
+        recent_logs = sorted_logs[:5]
+        alerts = [{"details": f"{l.get('disease', 'Unknown')} detected", "date": l.get('date')} for l in recent_logs]
+        health_alerts_count = len(HEALTH_LOGS)
 
         return jsonify({
             "stats": {
@@ -218,7 +217,7 @@ def get_dashboard():
                 "feed_stock": 75,
                 "water_tank": 90
             },
-            "milk_chart": milk_chart, # Added
+            "milk_chart": milk_chart,
             "health_history": alerts,
             "nearby_vets": [ # Mocked
                 {"name": "Dr. Kumar Vet Clinic", "dist": "2.5 km", "rating": 4.8},
@@ -278,12 +277,19 @@ def scan_cattle():
         - Breathing Sounds: {"Yes/Abnormal" if breathing_sound else "Normal"}
         - History: {history}
 
+        CRITICAL DIAGNOSTIC RULES:
+        1. **Natural Disorders vs. Diseases**: Carefully distinguish between infectious diseases (risk of contagion) and natural physiological states or environmental stress (e.g., Heat Stress causing panting, Postpartum exhaustion, Nutritional deficiency). Do NOT alarm the user if it's a natural/manageable disorder.
+        2. **Young Cattle (Calves < 1 Year)**: 
+           - Do NOT compare their weight/milk metrics to Adult standards. 
+           - A low weight for a calf is expected; do NOT flag as 'Underweight' unless critical for that specific age.
+           - 'Milk Yield' is irrelevant for calves; ignore 0 values.
+        
         Identify any potential diseases (Lumpy Skin, FMD, etc.) or health issues.
         Provide a diagnosis and treatment advice in {language}.
         
         IMPORTANT:
         - Explain WHY you classified it as Healthy or Unhealthy in the "basis_of_diagnosis" field.
-        - Cite specific visual symptoms or vital signs (e.g., "High fever and nasal discharge indicate...").
+        - Cite specific visual symptoms or vital signs.
         - START EACH POINT in "advice" and "prevention" with a bullet point symbol (•) for readability.
 
         Response Format (JSON ONLY):
@@ -332,14 +338,14 @@ def scan_cattle():
             return jsonify({"error": "AI Safety Filter triggered"}), 400
 
         if analysis.get('status') != 'Healthy':
-            db = get_db()
+            # Log to Memory
             log_entry = {
                 "date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                 "disease": analysis.get('disease_name'),
                 "confidence": analysis.get('confidence'),
-                "details": json.dumps(analysis) # Store original analysis as string or sub-document
+                "details": json.dumps(analysis)
             }
-            db.health_logs.insert_one(log_entry)
+            HEALTH_LOGS.append(log_entry)
 
         return jsonify(analysis)
 
@@ -412,12 +418,14 @@ def register():
     if not username or not password:
         return jsonify({"success": False, "error": "Username and password required"}), 400
     
-    db = get_db()
-    if db.users.find_one({"username": username}):
+    # Check if user exists in memory
+    user_exists = next((u for u in USERS if u['username'] == username), None)
+    if user_exists:
         return jsonify({"success": False, "error": "User already exists"}), 400
         
     hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
-    db.users.insert_one({"username": username, "password": hashed_password})
+    USERS.append({"username": username, "password": hashed_password})
+    print(f"User registered: {username}") # Debug
     
     return jsonify({"success": True, "message": "User created successfully"}), 201
 
@@ -427,8 +435,8 @@ def login():
     username = data.get('username')
     password = data.get('password')
     
-    db = get_db()
-    user = db.users.find_one({"username": username})
+    # Find user in memory
+    user = next((u for u in USERS if u['username'] == username), None)
     
     if user and bcrypt.check_password_hash(user['password'], password):
         return jsonify({"success": True, "message": "Login successful", "username": username}), 200

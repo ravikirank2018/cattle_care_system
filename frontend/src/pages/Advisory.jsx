@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useLanguage } from '../context/LanguageContext';
-import { Send, Bot, User, Loader2 } from 'lucide-react';
+import { Send, Bot, User, Loader2, Mic } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 
 const Advisory = () => {
@@ -61,6 +61,33 @@ const Advisory = () => {
         }
     };
 
+    const startListening = () => {
+        if (!('webkitSpeechRecognition' in window)) {
+            alert("Browser not supported. Use Chrome or Edge.");
+            return;
+        }
+
+        const recognition = new window.webkitSpeechRecognition();
+        recognition.lang = currentLang;
+        recognition.continuous = false;
+        recognition.interimResults = false;
+
+        recognition.onstart = () => setLoading(true); // Re-use loading state to show activity or add specific state
+
+        recognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript;
+            setInput(prev => prev + (prev ? ' ' : '') + transcript);
+        };
+
+        recognition.onend = () => setLoading(false);
+        recognition.onerror = (e) => {
+            console.error(e);
+            setLoading(false);
+        };
+
+        recognition.start();
+    };
+
     return (
         <div className="h-[calc(100vh-2rem)] flex flex-col animate-fade-in pb-4">
             <header className="mb-4 shrink-0">
@@ -98,6 +125,14 @@ const Advisory = () => {
 
             {/* INPUT AREA */}
             <div className="glass-card p-2 flex gap-2 items-center shrink-0 pr-24">
+                <button
+                    onClick={startListening}
+                    disabled={loading}
+                    className="p-3 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-xl transition-all disabled:opacity-50"
+                    title="Speak"
+                >
+                    <Mic size={20} />
+                </button>
                 <input
                     type="text"
                     value={input}
