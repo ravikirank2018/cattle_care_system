@@ -6,60 +6,14 @@ const AuthContext = createContext();
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
-    const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(true);
+    // Default to 'Farmer' user to bypass login
+    const [user, setUser] = useState({ username: 'Farmer' });
+    const [loading, setLoading] = useState(false);
 
-    useEffect(() => {
-        // Check for saved user in localStorage
-        const savedUser = localStorage.getItem('cattle_user');
-        if (savedUser) {
-            setUser(JSON.parse(savedUser));
-        }
-        setLoading(false);
-    }, []);
-
-    const login = async (username, password) => {
-        try {
-            const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:5000';
-            const res = await axios.post(`${API_URL}/api/auth/login`, { username, password });
-            if (res.data.success) {
-                const userData = { username: res.data.username }; // Adjust if backend sends full user object
-                const token = res.data.token;
-
-                setUser(userData);
-                localStorage.setItem('cattle_user', JSON.stringify(userData));
-                if (token) localStorage.setItem('cattle_token', token);
-
-                return { success: true };
-            }
-        } catch (error) {
-            console.error("Login Error", error);
-            return {
-                success: false,
-                error: error.response?.data?.error || "Login Failed"
-            };
-        }
-    };
-
-    const register = async (username, password) => {
-        try {
-            const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:5000';
-            await axios.post(`${API_URL}/api/auth/register`, { username, password });
-            return await login(username, password);
-        } catch (error) {
-            console.error("Registration Error", error);
-            return {
-                success: false,
-                error: error.response?.data?.error || "Registration Failed"
-            };
-        }
-    };
-
-    const logout = () => {
-        setUser(null);
-        localStorage.removeItem('cattle_user');
-        localStorage.removeItem('cattle_token');
-    };
+    // No operational login/logout needed for open access
+    const login = async () => ({ success: true });
+    const register = async () => ({ success: true });
+    const logout = () => { }; // Do nothing
 
     return (
         <AuthContext.Provider value={{ user, login, register, logout, loading }}>

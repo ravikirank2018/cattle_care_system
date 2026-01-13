@@ -80,12 +80,7 @@ const Sidebar = ({ isOpen, onClose }) => {
                 </nav>
 
                 <div className="mt-auto pt-6 border-t border-emerald-800">
-                    <button
-                        onClick={logout}
-                        className="w-full p-3 rounded-xl flex items-center gap-3 text-red-200 hover:bg-red-900/30 transition-all mb-4"
-                    >
-                        <LogOut size={18} /> <span className="font-medium">Logout</span>
-                    </button>
+                    {/* Logout Button Removed */}
 
                     <p className="text-xs text-emerald-300 uppercase font-bold tracking-wider mb-3 ml-2">Language / ഭാഷ / भाषा</p>
                     <select
@@ -108,9 +103,7 @@ const Sidebar = ({ isOpen, onClose }) => {
 };
 
 const ProtectedRoute = ({ children }) => {
-    const { user, loading } = useAuth();
-    if (loading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
-    if (!user) return <Navigate to="/login" />;
+    // Auth Check removed
     return children;
 };
 
@@ -170,7 +163,7 @@ const App = () => {
             <LanguageProvider>
                 <Router>
                     <Routes>
-                        <Route path="/login" element={<Login />} />
+                        {/* Login Route Removed */}
                         <Route path="/*" element={<AppLayout />} />
                     </Routes>
                 </Router>
