@@ -11,6 +11,8 @@ import time
 from threading import Lock
 from dotenv import load_dotenv
 from google.api_core.exceptions import ResourceExhausted, ServiceUnavailable, InternalServerError
+from gtts import gTTS
+import io
 
 load_dotenv()
 
@@ -39,14 +41,35 @@ bcrypt = Bcrypt(app)
 # MONGO_URI = "..." 
 
 # API Key Rotation Setup
-API_KEYS = [
-    os.getenv("GEMINI_API_KEY") or "AIzaSyBAxW_csgPuwKvPQ0OywEHxyxQAkpP_ZGg",
-    os.getenv("GEMINI_API_KEY_BACKUP") or "AIzaSyB_fuooiYrVPh74beaRAaCd8O1gdMiFDK0"
-]
+# API Key Rotation Setup
+PAID_KEY = "AIzaSyB2ERcfpDLd6c5pbze69EQnkiyX8GUe97s"
+
+API_KEYS = [PAID_KEY]
+
+if not API_KEYS:
+    # Fallback to hardcoded if env is empty (for safety)
+    API_KEYS = [PAID_KEY]
+
 current_key_index = 0
 
 def get_current_api_key():
     return API_KEYS[current_key_index]
+
+def enforce_rate_limit():
+    global last_call_time
+    
+    # SKIP LIMIT FOR PAID KEY
+    if get_current_api_key() == PAID_KEY:
+        print("🚀 Using Paid Key - Skipping Rate Limit")
+        return
+
+    with api_lock:
+        elapsed = time.time() - last_call_time
+        if elapsed < 4.5:
+            sleep_time = 4.5 - elapsed
+            print(f"Rate Limiting: Sleeping for {sleep_time:.2f}s...")
+            time.sleep(sleep_time)
+        last_call_time = time.time()
 
 def rotate_api_key():
     global current_key_index
@@ -56,21 +79,36 @@ def rotate_api_key():
     genai.configure(api_key=new_key)
     return new_key
 
-# Configure Initial Gemini
-genai.configure(api_key=get_current_api_key())
+# Configure Initial Gemini with validation
+print(f"🔑 Initializing Gemini with {len(API_KEYS)} keys...")
+model_name = 'gemini-1.5-flash'
+available_models = []
 
-# Dynamic Model Selection
-available_models = [m.name for m in genai.list_models() if 'generateContent' in m.supported_generation_methods]
-model_name = 'gemini-1.5-flash' # Default fallback
+for i in range(len(API_KEYS)):
+    try:
+        current_key = get_current_api_key()
+        genai.configure(api_key=current_key)
+        # Verify key by listing models
+        available_models = [m.name for m in genai.list_models() if 'generateContent' in m.supported_generation_methods]
+        print(f"✅ API Key {current_key_index} is active and verified.")
+        break
+    except Exception as e:
+        print(f"⚠️ API Key {current_key_index} failed validation: {e}")
+        if i < len(API_KEYS) - 1:
+            rotate_api_key()
+        else:
+            print("🚨 CRITICAL: All provided API keys failed validation.")
+
 if available_models:
-    # Prefer flash 1.5 if available, else take first
-    if 'models/gemini-1.5-flash' in available_models:
-        model_name = 'gemini-1.5-flash'
+    flash_models = [m for m in available_models if 'gemini-1.5-flash' in m]
+    if flash_models:
+        model_name = flash_models[0]
     else:
         model_name = available_models[0]
-        print(f"Warning: 'gemini-1.5-flash' not found. Using '{model_name}' instead.")
+        print(f"Using alternate model: {model_name}")
 
 model = genai.GenerativeModel(model_name)
+print(f"🚀 Using Model: {model_name}")
 
 # --- IN-MEMORY DATA STORAGE ---
 # Data persists only while server is running
@@ -115,6 +153,13 @@ MIN_INTERVAL = 4.0 # 4 seconds between calls = 15 RPM max
 
 def enforce_rate_limit():
     global LAST_CALL_TIME
+    
+    # SKIP LIMIT FOR PAID KEY (Access global from main scope via helper or check key directly)
+    # Since we are in the same module, we can check the current key using the function defined above
+    if get_current_api_key() == PAID_KEY:
+        # print("🚀 Paid Key Active - No Wait")
+        return
+
     elapsed = time.time() - LAST_CALL_TIME
     if elapsed < MIN_INTERVAL:
         wait_time = MIN_INTERVAL - elapsed
@@ -152,6 +197,29 @@ def generate_with_retry(model_obj, prompt, retries=5):
             time.sleep(1)
             
     raise Exception("Max retries exceeded for Gemini API - Service Busy")
+
+def chat_send_with_retry(chat_obj, prompt, retries=3):
+    """
+    Robust chat message sending with exponential backoff and key rotation.
+    """
+    base_delay = 5
+    for attempt in range(retries):
+        enforce_rate_limit()
+        try:
+            return chat_obj.send_message(prompt)
+        except (ServiceUnavailable, InternalServerError):
+            print(f"Gemini Service Error (Chat Attempt {attempt+1}). Retrying...")
+            time.sleep(2)
+        except ResourceExhausted:
+            delay = (base_delay * (2 ** attempt)) + random.uniform(0, 2)
+            print(f"⚠️ Chat Quota Exceeded. Rotating Key & Waiting {delay:.2f}s...")
+            rotate_api_key()
+            time.sleep(delay)
+        except Exception as e:
+            print(f"Chat Error: {e}")
+            if attempt == retries - 1: raise e
+            time.sleep(1)
+    raise Exception("Max retries exceeded for Chat API")
 
 def get_zone(state):
     state = state.lower().strip()
@@ -366,14 +434,25 @@ def advisory_chat():
         # Select System Prompt based on Type
         if advisory_type == 'nutrition':
             role_desc = "You are an expert Animal Nutritionist specializing in cattle feed optimization."
+            extra_instruction = """
+            STEP-BY-STEP PROTOCOL:
+            1. If you don't know the following, ASK for them one by one or together:
+               - Age of the cow (in months)
+               - Breed
+               - Food allergies (if any)
+            2. Once you have all info: Provide a personalized nutrition plan.
+            3. CRITICAL: If the user mentions any food allergies, EXPLICITLY state that those foods are avoided and remove them from the plan.
+            4. FORMAT: Always provide a Markdown TABLE for the daily cycle with columns: Morning | Afternoon | Night.
+            """
         else:
             role_desc = "You are an expert Veterinary Doctor specializing in general cattle health and management."
+            extra_instruction = ""
 
         system_instruction = f"""
         {role_desc}
         Answer in {language}.
-        Keep responses concise (max 2-3 sentences) suitable for a Voice Assistant to read out loud.
-        Do not use markdown formatting like bold or lists, as it will be spoken.
+        {extra_instruction}
+        Keep responses concise suitable for a Voice Assistant, but DO include the markdown table in the text response.
         Focus solely on the user's query regarding {advisory_type} advisory.
         """
 
@@ -401,7 +480,7 @@ def advisory_chat():
         last_message = history[-1]['content']
         full_prompt = f"System: {system_instruction}\nUser: {last_message}"
         
-        response = chat.send_message(full_prompt)
+        response = chat_send_with_retry(chat, full_prompt)
         
         return jsonify({"success": True, "data": response.text})
 
@@ -597,6 +676,44 @@ def estimate_price():
     except Exception as e:
         print(f"Price Est Error: {e}")
         return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/tts', methods=['POST'])
+def text_to_speech():
+    try:
+        data = request.json
+        text = data.get('text', '')
+        language = data.get('language', 'en-US')
+
+        # Map 'en-US' etc to gTTS codes
+        lang_map = {
+            'en-US': 'en',
+            'hi-IN': 'hi',
+            'te-IN': 'te',
+            'ta-IN': 'ta',
+            'ml-IN': 'ml',
+            'kn-IN': 'kn'
+        }
+        gtts_lang = lang_map.get(language, 'en')
+
+        if not text:
+            return jsonify({"error": "No text provided"}), 400
+
+        # Generate audio in memory
+        tts = gTTS(text=text, lang=gtts_lang, slow=False)
+        fp = io.BytesIO()
+        tts.write_to_fp(fp)
+        fp.seek(0)
+        
+        audio_base64 = base64.b64encode(fp.read()).decode('utf-8')
+        
+        return jsonify({
+            "success": True,
+            "audio": f"data:audio/mp3;base64,{audio_base64}"
+        })
+
+    except Exception as e:
+        print(f"TTS Error: {e}")
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

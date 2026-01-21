@@ -31,38 +31,40 @@ export default function Grants() {
     return (
         <div className="space-y-6 animate-fade-in pb-10">
             <header>
-                <div className="flex items-center gap-3">
-                    <div className="p-3 bg-amber-100 text-amber-600 rounded-xl">
-                        <DollarSign size={32} />
+                <div className="flex items-center gap-4">
+                    <div className="p-4 bg-[#253D2E] text-[#B6E63E] rounded-2xl shadow-[6px_6px_0px_#B6E63E] border border-[#2a4d3a]">
+                        <DollarSign size={36} />
                     </div>
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-800">{t('grants-title')}</h1>
-                        <p className="text-gray-500">{t('grants-subtitle')}</p>
+                        <h1 className="text-3xl font-black text-[#253D2E] tracking-tight">{t('grants-title')}</h1>
+                        <p className="text-[#4A6741] font-medium">{t('grants-subtitle')}</p>
                     </div>
                 </div>
             </header>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="glass-card p-6 h-fit sticky top-24">
-                    <h2 className="text-xl font-bold mb-4">{t('grants-new')}</h2>
+                    <h2 className="text-xl font-bold mb-4 text-[#253D2E]">{t('grants-new')}</h2>
                     <form onSubmit={create} className="space-y-4">
-                        <input className="w-full p-3 border rounded-lg bg-gray-50" placeholder="Grant Name" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} />
-                        <input className="w-full p-3 border rounded-lg bg-gray-50" placeholder="Amount (₹)" value={form.amount} onChange={e => setForm({ ...form, amount: e.target.value })} />
-                        <textarea className="w-full p-3 border rounded-lg bg-gray-50" placeholder="Description" rows={4} value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} />
-                        <button type="submit" className="w-full bg-amber-500 text-white font-bold py-3 rounded-lg hover:bg-amber-600 transition">Add Grant</button>
+                        <input className="input-field font-semibold text-[#253D2E]" placeholder="Grant Name" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} />
+                        <input className="input-field font-semibold text-[#253D2E]" placeholder="Amount (₹)" value={form.amount} onChange={e => setForm({ ...form, amount: e.target.value })} />
+                        <textarea className="input-field font-semibold text-[#253D2E]" placeholder="Description" rows={4} value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} />
+                        <button type="submit" className="btn-primary w-full bg-[#253D2E] text-white hover:bg-[#0D1A12] shadow-lg">Add Grant</button>
                     </form>
                 </div>
 
                 <div className="space-y-4">
-                    <h2 className="text-xl font-bold text-gray-800">{t('grants-schemes')}</h2>
+                    <h2 className="text-xl font-bold text-[#253D2E]">{t('grants-schemes')}</h2>
                     {grants.map(g => (
-                        <div key={g._id} className="glass-card p-6 flex flex-col gap-2 hover:shadow-lg transition">
+                        <div key={g._id} className="glass-card p-6 flex flex-col gap-2 hover:shadow-lg transition border border-[#253D2E]/10">
                             <div className="flex justify-between items-start">
-                                <h3 className="font-bold text-lg text-emerald-900">{g.name}</h3>
-                                <span className="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-sm font-bold">₹{g.amount}</span>
+                                <h3 className="font-bold text-lg text-[#253D2E]">{g.name}</h3>
+                                <span className="bg-[#B6E63E] text-[#253D2E] px-3 py-1 rounded-lg text-sm font-bold shadow-sm">₹{g.amount}</span>
                             </div>
-                            <p className="text-gray-600">{g.description}</p>
-                            <button className="mt-2 text-amber-600 font-bold text-sm self-start hover:underline">{t('grants-apply')} →</button>
+                            <p className="text-[#4A6741] font-medium">{g.description}</p>
+                            <button className="mt-2 text-[#253D2E] font-black text-sm self-start hover:underline flex items-center gap-1">
+                                {t('grants-apply')} <span className="text-lg">→</span>
+                            </button>
                         </div>
                     ))}
                 </div>
@@ -70,3 +72,4 @@ export default function Grants() {
         </div>
     )
 }
+

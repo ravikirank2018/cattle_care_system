@@ -1,43 +1,49 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@config "../tailwind.config.js";
 
 :root {
-  --primary: #059669; /* Emerald 600 */
-  --primary-dark: #047857; /* Emerald 700 */
-  --secondary: #4f46e5; /* Indigo 600 */
-  --accent: #d97706; /* Amber 600 */
-  --bg-gradient: linear-gradient(135deg, #f0fdf4 0%, #eef2ff 100%);
+    --primary: #253D2E;
+    /* Capital Dark */
+    --primary-dark: #0D1A12;
+    --secondary: #B6E63E;
+    /* Capital Lime */
+    --accent: #D1FA46;
+    --bg-color: #F4F7F4;
+    /* Pale Mist */
 }
 
 body {
     margin: 0;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    background: var(--bg-gradient);
-    color: #1f2937; /* Gray 800 */
+    background-color: var(--bg-color);
+    color: #253D2E;
     min-height: 100vh;
     overflow-x: hidden;
 }
 
 @layer components {
+
+    /* Exact match for Capital Sense 'Clean Card' */
     .glass-card {
-        @apply bg-white/60 backdrop-blur-xl border border-white/50 shadow-lg rounded-3xl transition-all duration-300;
-    }
-    
-    .glass-card:hover {
-        @apply shadow-2xl bg-white/80 border-white/70;
+        @apply bg-white border border-gray-100 shadow-xl rounded-[20px] transition-all duration-300;
+        /* Subtle green glow on hover if needed, or keeping it clean */
     }
 
-    .btn-primary {
-        @apply bg-emerald-600 text-white px-6 py-3 rounded-2xl font-bold hover:bg-emerald-700 transition-all shadow-lg hover:shadow-emerald-200 active:scale-95 flex items-center justify-center gap-2;
+    .glass-card:hover {
+        @apply shadow-strong -translate-y-1;
     }
-    
+
+    /* Exact match for Capital Sense Buttons */
+    .btn-primary {
+        @apply bg-[#253D2E] text-white px-8 py-4 rounded-full font-bold uppercase tracking-wide hover:bg-[#0D1A12] shadow-lg hover:shadow-xl active:scale-95 flex items-center justify-center gap-2 text-sm;
+    }
+
     .btn-secondary {
-        @apply bg-white text-gray-700 border border-gray-200 px-6 py-3 rounded-2xl font-bold hover:bg-gray-50 transition-all shadow-sm hover:shadow-md active:scale-95 flex items-center justify-center gap-2;
+        @apply bg-[#B6E63E] text-[#253D2E] px-8 py-4 rounded-full font-bold uppercase tracking-wide hover:bg-[#D1FA46] shadow-md hover:shadow-lg active:scale-95 flex items-center justify-center gap-2 text-sm;
     }
 
     .input-field {
-        @apply w-full bg-white/50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all;
+        @apply w-full bg-[#f8fafc] border border-gray-200 rounded-lg px-4 py-4 focus:outline-none focus:bg-white focus:border-[#253D2E] focus:ring-4 focus:ring-[#253D2E]/10 transition-all font-medium text-[#253D2E] placeholder-gray-400;
     }
 }
 
@@ -46,13 +52,16 @@ body {
     width: 6px;
     height: 6px;
 }
+
 ::-webkit-scrollbar-track {
     background: transparent;
 }
+
 ::-webkit-scrollbar-thumb {
     background: #cbd5e1;
     border-radius: 3px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
     background: #94a3b8;
 }
@@ -62,6 +71,77 @@ body {
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); scale: 0.98; }
-    to { opacity: 1; transform: translateY(0); scale: 1; }
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+        scale: 0.98;
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+        scale: 1;
+    }
+}
+
+/* Markdown Table Styling */
+table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin: 1.5rem 0;
+    border-radius: 1rem;
+    overflow: hidden;
+    border: 1px solid #e5e7eb;
+}
+
+th {
+    background-color: #f0fdf4;
+    color: #065f46;
+    font-weight: 700;
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 2px solid #bbf7d0;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+}
+
+td {
+    padding: 12px 16px;
+    background-color: rgba(255, 255, 255, 0.5);
+    border-bottom: 1px solid #f3f4f6;
+    font-size: 0.875rem;
+    color: #374151;
+}
+
+tr:last-child td {
+    border-bottom: none;
+}
+
+tr:hover td {
+    background-color: rgba(240, 253, 244, 0.5);
+}
+
+.markdown-content table {
+    margin: 1rem 0;
+    font-size: 0.8rem;
+    width: 100%;
+}
+
+.markdown-content th,
+.markdown-content td {
+    border: 1px solid #e5e7eb;
+    padding: 8px;
+}
+
+.markdown-content p {
+    margin-bottom: 0.75rem;
+}
+
+.markdown-content ul,
+.markdown-content ol {
+    margin-left: 1.5rem;
+    margin-bottom: 0.75rem;
+    list-style: disc;
 }

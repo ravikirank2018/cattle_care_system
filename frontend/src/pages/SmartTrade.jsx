@@ -96,63 +96,74 @@ const SmartTrade = () => {
     return (
         <div className="space-y-8 animate-fade-in pb-10">
             <header>
-                <h1 className="text-4xl font-bold text-gray-800">{t('title-trade')}</h1>
-                <p className="text-gray-500 mt-2">{t('trade-subtitle')}</p>
+                <div className="flex items-center gap-4 mb-8">
+                    <div className="p-4 bg-[#253D2E] text-[#B6E63E] rounded-2xl shadow-[6px_6px_0px_#B6E63E] border border-[#2a4d3a]">
+                        <TrendingUp size={36} />
+                    </div>
+                    <div>
+                        <h1 className="text-4xl font-black text-[#253D2E] tracking-tight">{t('title-trade')}</h1>
+                        <p className="text-[#4A6741] font-medium mt-1">{t('trade-subtitle') || 'AI-Powered Cattle Valuation System'}</p>
+                    </div>
+                </div>
             </header>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* INPUT FORM */}
-                <div className="glass-card p-8 space-y-6">
+                <div className="glass-card p-8 space-y-6 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-[#B6E63E]/10 rounded-bl-full -mr-10 -mt-10 pointer-events-none"></div>
+
                     <div className="grid grid-cols-2 gap-6">
                         <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-2">{t('lbl-breed')}</label>
-                            <select name="breed" className="w-full bg-emerald-50/50 border-emerald-200" onChange={handleChange} value={formData.breed}>
-                                <optgroup label={t('grp-desi')}>
+                            <label className="block text-sm font-bold text-[#253D2E] mb-2">{t('lbl-breed')}</label>
+                            <select name="breed" className="w-full bg-[#F4F7F4] border-[#253D2E]/20 focus:border-[#B6E63E] focus:ring-[#B6E63E] text-[#253D2E] font-bold" onChange={handleChange} value={formData.breed}>
+                                <optgroup label={t('grp-desi')} className="font-bold text-[#4A6741]">
                                     <option value="gir">{t('opt-gir')}</option>
                                     <option value="sahiwal">{t('opt-sahiwal')}</option>
                                     <option value="redsindhi">{t('opt-redsindhi')}</option>
                                     <option value="tharparkar">{t('opt-tharparkar')}</option>
                                     <option value="murrah">{t('opt-murrah')}</option>
                                 </optgroup>
-                                <optgroup label={t('grp-exotic')}>
+                                <optgroup label={t('grp-exotic')} className="font-bold text-[#4A6741]">
                                     <option value="jersey">{t('opt-jersey')}</option>
                                     <option value="holstein">{t('opt-holstein')}</option>
                                 </optgroup>
                             </select>
                         </div>
                         <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-2">{t('lbl-weight')}</label>
-                            <input name="weight" type="number" className="w-full" placeholder="350" onChange={handleChange} />
+                            <label className="block text-sm font-bold text-[#253D2E] mb-2">{t('lbl-weight')}</label>
+                            <input name="weight" type="number" className="w-full bg-[#F4F7F4] border-[#253D2E]/20 focus:border-[#B6E63E] focus:ring-[#B6E63E] text-[#253D2E] font-bold" placeholder="350" onChange={handleChange} />
                         </div>
                     </div>
 
                     <div className="grid grid-cols-3 gap-4">
                         <div className="col-span-1">
-                            <label className="block text-sm font-semibold text-gray-700 mb-2">{t('lbl-age')}</label>
-                            <input name="age" type="number" className="w-full" placeholder="36" onChange={handleChange} />
+                            <label className="block text-sm font-bold text-[#253D2E] mb-2">{t('lbl-age')}</label>
+                            <input name="age" type="number" className="w-full bg-[#F4F7F4] border-[#253D2E]/20 focus:border-[#B6E63E] focus:ring-[#B6E63E] text-[#253D2E] font-bold" placeholder="36" onChange={handleChange} />
                         </div>
                         <div className="col-span-1">
-                            <label className="block text-sm font-semibold text-gray-700 mb-2">{t('lbl-milk')}</label>
-                            <input name="milk" type="number" className="w-full" placeholder="12" onChange={handleChange} />
+                            <label className="block text-sm font-bold text-[#253D2E] mb-2">{t('lbl-milk')}</label>
+                            <input name="milk" type="number" className="w-full bg-[#F4F7F4] border-[#253D2E]/20 focus:border-[#B6E63E] focus:ring-[#B6E63E] text-[#253D2E] font-bold" placeholder="12" onChange={handleChange} />
                         </div>
                         <div className="col-span-1">
-                            <label className="block text-sm font-semibold text-gray-700 mb-2">{t('lbl-preg')}</label>
-                            <input name="pregnancy" type="number" className="w-full" placeholder="0" onChange={handleChange} />
+                            <label className="block text-sm font-bold text-[#253D2E] mb-2">{t('lbl-preg')}</label>
+                            <input name="pregnancy" type="number" className="w-full bg-[#F4F7F4] border-[#253D2E]/20 focus:border-[#B6E63E] focus:ring-[#B6E63E] text-[#253D2E] font-bold" placeholder="0" onChange={handleChange} />
                         </div>
                     </div>
 
                     <div className="grid grid-cols-2 gap-6 mt-4">
                         <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-2">Location (State)</label>
-                            <select name="location" className="w-full bg-emerald-50/50 border-emerald-200" onChange={handleChange} value={formData.location}>
+                            <label className="block text-sm font-bold text-[#253D2E] mb-2">{t('lbl-location') || 'Location (State)'}</label>
+                            <select name="location" className="w-full bg-[#F4F7F4] border-[#253D2E]/20 focus:border-[#B6E63E] focus:ring-[#B6E63E] text-[#253D2E] font-bold" onChange={handleChange} value={formData.location}>
                                 {indianStates.map(state => (
-                                    <option key={state} value={state}>{state}</option>
+                                    <option key={state} value={state}>
+                                        {t(`st-${state.toLowerCase().replace(/\s+/g, '')}`) || state}
+                                    </option>
                                 ))}
                             </select>
                         </div>
                         <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-2">Vaccination Status</label>
-                            <select name="vaccination" className="w-full bg-emerald-50/50 border-emerald-200" onChange={handleChange} value={formData.vaccination}>
+                            <label className="block text-sm font-bold text-[#253D2E] mb-2">Vaccination Status</label>
+                            <select name="vaccination" className="w-full bg-[#F4F7F4] border-[#253D2E]/20 focus:border-[#B6E63E] focus:ring-[#B6E63E] text-[#253D2E] font-bold" onChange={handleChange} value={formData.vaccination}>
                                 <option value="none">None / Unknown</option>
                                 <option value="partially">Partially Vaccinated</option>
                                 <option value="fully">Fully Vaccinated</option>
@@ -162,23 +173,23 @@ const SmartTrade = () => {
 
                     <div className="grid grid-cols-2 gap-6 mt-4">
                         <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-2">Lactation Cycle (1-10)</label>
-                            <input name="lactation_cycle" type="number" className="w-full" placeholder="2" onChange={handleChange} value={formData.lactation_cycle} />
+                            <label className="block text-sm font-bold text-[#253D2E] mb-2">Lactation Cycle (1-10)</label>
+                            <input name="lactation_cycle" type="number" className="w-full bg-[#F4F7F4] border-[#253D2E]/20 focus:border-[#B6E63E] focus:ring-[#B6E63E] text-[#253D2E] font-bold" placeholder="2" onChange={handleChange} value={formData.lactation_cycle} />
                         </div>
                         <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-2">Disease History</label>
-                            <div className="flex flex-wrap gap-2 text-sm text-gray-600">
-                                <label className="flex items-center gap-1"><input type="checkbox" value="FMD" onChange={handleCheckboxChange} checked={formData.disease_history.includes('FMD')} /> FMD</label>
-                                <label className="flex items-center gap-1"><input type="checkbox" value="Mastitis" onChange={handleCheckboxChange} checked={formData.disease_history.includes('Mastitis')} /> Mastitis</label>
-                                <label className="flex items-center gap-1"><input type="checkbox" value="Brucellosis" onChange={handleCheckboxChange} checked={formData.disease_history.includes('Brucellosis')} /> Brucellosis</label>
+                            <label className="block text-sm font-bold text-[#253D2E] mb-2">Disease History</label>
+                            <div className="flex flex-wrap gap-2 text-sm text-[#4A6741] font-medium">
+                                <label className="flex items-center gap-1 cursor-pointer hover:text-[#253D2E]"><input type="checkbox" value="FMD" onChange={handleCheckboxChange} checked={formData.disease_history.includes('FMD')} className="accent-[#253D2E]" /> FMD</label>
+                                <label className="flex items-center gap-1 cursor-pointer hover:text-[#253D2E]"><input type="checkbox" value="Mastitis" onChange={handleCheckboxChange} checked={formData.disease_history.includes('Mastitis')} className="accent-[#253D2E]" /> Mastitis</label>
+                                <label className="flex items-center gap-1 cursor-pointer hover:text-[#253D2E]"><input type="checkbox" value="Brucellosis" onChange={handleCheckboxChange} checked={formData.disease_history.includes('Brucellosis')} className="accent-[#253D2E]" /> Brucellosis</label>
                             </div>
                         </div>
                     </div>
 
-                    {error && <div className="p-3 bg-red-100 text-red-700 rounded-lg text-sm">{error}</div>}
+                    {error && <div className="p-3 bg-red-100 text-red-700 rounded-lg text-sm border border-red-200 font-bold">{error}</div>}
 
-                    <button onClick={calculatePrice} disabled={loading} className="btn-primary w-full flex items-center justify-center gap-2 py-4 text-lg">
-                        {loading ? t('msg-analyzing') : <><Calculator size={24} /> {t('btn-calc')}</>}
+                    <button onClick={calculatePrice} disabled={loading} className="btn-primary w-full flex items-center justify-center gap-2 py-4 text-lg bg-[#253D2E] hover:bg-[#0D1A12] text-white rounded-xl shadow-[0_10px_20px_rgba(26,47,35,0.3)] hover:shadow-[0_15px_25px_rgba(182,230,62,0.2)] transition-all">
+                        {loading ? t('msg-analyzing') : <><Calculator size={24} className="text-[#B6E63E]" /> {t('btn-calc')}</>}
                     </button>
 
                     {/* QR Mobile Feature */}
@@ -205,34 +216,34 @@ const SmartTrade = () => {
                     {result && (
                         <>
                             {/* REPORT CERTIFICATE (ID for PDF) */}
-                            <div id="valuation-report" className="bg-white p-8 rounded-xl border-4 border-double border-emerald-100 shadow-xl relative overflow-hidden">
-                                <div className="absolute top-4 right-4 opacity-20"><Stamp size={80} className="text-emerald-800" /></div>
+                            <div id="valuation-report" className="bg-white p-8 rounded-xl border border-gray-100 shadow-xl relative overflow-hidden ring-1 ring-[#253D2E]/5">
+                                <div className="absolute top-4 right-4 opacity-10"><Stamp size={80} className="text-[#253D2E]" /></div>
 
-                                <div className="border-b-2 border-emerald-500 pb-4 mb-6">
-                                    <h2 className="text-2xl font-bold text-emerald-900 uppercase tracking-widest">{t('cert-title')}</h2>
+                                <div className="border-b-2 border-[#253D2E] pb-4 mb-6">
+                                    <h2 className="text-2xl font-bold text-[#253D2E] uppercase tracking-widest">{t('cert-title')}</h2>
                                     <p className="text-sm text-gray-500">{t('cert-subtitle')} • {new Date().toLocaleDateString()}</p>
                                 </div>
 
                                 <div className="flex justify-between items-end mb-8">
                                     <div>
                                         <p className="text-sm font-bold text-gray-500 uppercase">{t('cert-value')}</p>
-                                        <p className="text-5xl font-extrabold text-emerald-600">₹{result.estimated_price.toLocaleString()}</p>
+                                        <p className="text-5xl font-extrabold text-[#253D2E]">₹{result.estimated_price.toLocaleString()}</p>
                                     </div>
                                     <div className="text-right">
                                         <p className="text-sm font-bold text-gray-500">{t('cert-confidence')}</p>
-                                        <p className="text-xl font-bold text-emerald-800">98.5%</p>
+                                        <p className="text-xl font-bold text-[#4A6741]">98.5%</p>
                                     </div>
                                 </div>
 
-                                <div className="bg-emerald-50/50 p-4 rounded-lg space-y-2 text-sm border border-emerald-100 mb-6">
-                                    <h3 className="font-bold text-emerald-800 border-b border-emerald-200 pb-1 mb-2">{t('cert-proof')}</h3>
+                                <div className="bg-[#F4F7F4] p-4 rounded-lg space-y-2 text-sm border border-gray-200 mb-6">
+                                    <h3 className="font-bold text-[#253D2E] border-b border-gray-300 pb-1 mb-2">{t('cert-proof')}</h3>
                                     <div className="flex justify-between"><span className="text-gray-600">{t('cert-base')} ({formData.weight}kg)</span> <span className="font-mono">₹{result.breakdown.weight_value}</span></div>
-                                    <div className="flex justify-between"><span className="text-gray-600">{t('cert-milk')} ({formData.milk}L)</span> <span className="font-mono text-green-600">+ ₹{result.breakdown.milk_bonus}</span></div>
+                                    <div className="flex justify-between"><span className="text-gray-600">{t('cert-milk')} ({formData.milk}L)</span> <span className="font-mono text-[#4A6741]">+ ₹{result.breakdown.milk_bonus}</span></div>
                                     <div className="flex justify-between"><span className="text-gray-600">{t('cert-preg')}</span> <span className="font-mono text-purple-600">+ ₹{result.breakdown.pregnancy_bonus}</span></div>
                                     <div className="flex justify-between"><span className="text-gray-600">{t('cert-age')} ({formData.age}m)</span> <span className="font-mono text-red-500">- ₹{result.breakdown.age_penalty}</span></div>
 
                                     {result.breakdown.vaccination_bonus > 0 && (
-                                        <div className="flex justify-between"><span className="text-gray-600">Vaccination Bonus</span> <span className="font-mono text-green-600">+ ₹{result.breakdown.vaccination_bonus}</span></div>
+                                        <div className="flex justify-between"><span className="text-gray-600">Vaccination Bonus</span> <span className="font-mono text-[#4A6741]">+ ₹{result.breakdown.vaccination_bonus}</span></div>
                                     )}
                                     {result.breakdown.health_penalty > 0 && (
                                         <div className="flex justify-between"><span className="text-gray-600">Health History Penalty</span> <span className="font-mono text-red-500">- ₹{result.breakdown.health_penalty}</span></div>
@@ -243,7 +254,7 @@ const SmartTrade = () => {
 
                                 <div className="mb-6">
                                     <h3 className="font-bold text-gray-700 mb-2">{t('cert-analysis')}</h3>
-                                    <p className="text-sm text-gray-600 italic bg-gray-50 p-3 rounded border-l-4 border-emerald-500 whitespace-pre-wrap leading-relaxed">
+                                    <p className="text-sm text-gray-600 italic bg-gray-50 p-3 rounded border-l-4 border-[#253D2E] whitespace-pre-wrap leading-relaxed">
                                         "{result.ai_analysis}"
                                     </p>
                                 </div>
@@ -279,3 +290,4 @@ const SmartTrade = () => {
 };
 
 export default SmartTrade;
+

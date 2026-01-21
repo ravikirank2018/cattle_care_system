@@ -1,43 +1,87 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&display=swap');
 
 :root {
-  --primary: #10b981;
-  /* Emerald 500 */
-  --primary-dark: #047857;
-  --accent: #f59e0b;
-  /* Amber 500 */
-  --glass-bg: rgba(255, 255, 255, 0.95);
-  --glass-border: rgba(255, 255, 255, 0.2);
-  --text-main: #1f2937;
-  --text-muted: #6b7280;
+  /* Capital Sense Palette */
+  --primary: #253D2E;
+  /* Deep Forest */
+  --primary-dark: #0D1A12;
+  --accent: #B6E63E;
+  /* Neon Lime */
+
+  --glass-bg: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(26, 47, 35, 0.1);
+
+  --text-main: #253D2E;
+  --text-muted: #4A6741;
 }
 
 body {
   margin: 0;
-  font-family: 'Outfit', sans-serif;
+  font-family: 'Inter', sans-serif;
   -webkit-font-smoothing: antialiased;
-  /* Premium Mesh Gradient Background */
-  background-color: #f0fdf4;
-  background-image:
-    radial-gradient(at 0% 0%, rgba(52, 211, 153, 0.4) 0px, transparent 50%),
-    radial-gradient(at 100% 0%, rgba(251, 191, 36, 0.4) 0px, transparent 50%),
-    radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.2) 0px, transparent 50%),
-    radial-gradient(at 0% 100%, rgba(59, 130, 246, 0.2) 0px, transparent 50%);
-  background-attachment: fixed;
+  background-color: #F4F7F4;
+  /* Pale Mist */
+  /* Subtle mesh gradient optional, keeping it clean for now */
   color: var(--text-main);
   min-height: 100vh;
 }
 
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
 /* Glassmorphism Card - Enhanced */
+html {
+  scroll-behavior: smooth;
+}
+
+/* 3D Depth Background - High Visibility Mesh */
+.bg-3d-depth {
+  background-color: #F4F7F4;
+  background-image:
+    radial-gradient(circle at 5% 5%, rgba(182, 230, 62, 0.45) 0%, transparent 45%),
+    radial-gradient(circle at 95% 95%, rgba(26, 47, 35, 0.2) 0%, transparent 45%),
+    radial-gradient(circle at 80% 10%, rgba(74, 103, 65, 0.25) 0%, transparent 40%),
+    radial-gradient(circle at 10% 90%, rgba(182, 230, 62, 0.15) 0%, transparent 50%);
+  background-attachment: fixed;
+  background-size: 100% 100%;
+}
+
+/* Smooth Transitions */
+.page-transition {
+  animation: fadeSlideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Glassmorphism Card - Capital Clean */
 .glass-card {
-  background: rgba(255, 255, 255, 0.65);
-  backdrop-filter: blur(16px) saturate(180%);
-  -webkit-backdrop-filter: blur(16px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  box-shadow:
-    0 4px 6px -1px rgba(0, 0, 0, 0.05),
-    0 2px 4px -1px rgba(0, 0, 0, 0.03),
-    inset 0 0 20px rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.75);
+  /* High Translucency */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 10px 30px -10px rgba(26, 47, 35, 0.1);
   border-radius: 1.5rem;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -102,18 +146,25 @@ select:focus {
   width: 64px;
   height: 64px;
   border-radius: 50%;
-  background: linear-gradient(45deg, #3b82f6, #8b5cf6);
+  background: linear-gradient(135deg, #253D2E, #4A6741);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+  box-shadow: 0 4px 15px rgba(26, 47, 35, 0.4);
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 2px solid #B6E63E;
+  /* Lime Accent Border */
+  color: #B6E63E;
+  /* Lime Icon Color */
 }
 
 .voice-orb.listening {
   transform: scale(1.1);
-  box-shadow: 0 0 40px rgba(59, 130, 246, 0.8), 0 0 0 15px rgba(59, 130, 246, 0.1);
+  background: linear-gradient(135deg, #B6E63E, #8BBF38);
+  border-color: #253D2E;
+  color: #253D2E;
+  box-shadow: 0 0 40px rgba(182, 230, 62, 0.6), 0 0 0 15px rgba(182, 230, 62, 0.1);
   animation: breathe 2s infinite ease-in-out;
 }
 

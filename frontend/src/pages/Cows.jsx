@@ -1,7 +1,7 @@
 import { useLanguage } from '../context/LanguageContext'
 import React, { useEffect, useState } from 'react'
 import api from '../services/api'
-import { Plus, Search } from 'lucide-react'
+import { Plus, Search, ScrollText } from 'lucide-react'
 
 export default function Cows() {
     const { t } = useLanguage()
@@ -32,25 +32,34 @@ export default function Cows() {
     return (
         <div className="space-y-6 animate-fade-in pb-10">
             <header>
-                <h1 className="text-3xl font-bold text-gray-800">{t('cows-title')}</h1>
-                <p className="text-gray-500 mt-2">{t('cows-subtitle')}</p>
+                <div className="flex items-center gap-4 mb-6">
+                    <div className="p-4 bg-[#253D2E] text-[#B6E63E] rounded-2xl shadow-[6px_6px_0px_#B6E63E] border border-[#2a4d3a]">
+                        <ScrollText size={36} />
+                    </div>
+                    <div>
+                        <h1 className="text-3xl font-black text-[#253D2E] tracking-tight">{t('cows-title')}</h1>
+                        <p className="text-[#4A6741] font-medium">{t('cows-subtitle')}</p>
+                    </div>
+                </div>
             </header>
 
             <div className="glass-card p-6">
                 <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-                    <Plus size={20} className="text-emerald-600" /> {t('btn-add-cow')}
+                    <Plus size={20} className="text-[#4A6741]" /> {t('btn-add-cow')}
                 </h2>
                 <form onSubmit={create} className="grid grid-cols-1 md:grid-cols-5 gap-4">
-                    <input className="p-2 border rounded-lg" placeholder={t('ph-tag')} value={form.tag} onChange={e => setForm({ ...form, tag: e.target.value })} />
-                    <input className="p-2 border rounded-lg" type="number" placeholder={t('ph-age')} value={form.age} onChange={e => setForm({ ...form, age: +e.target.value })} />
-                    <select className="p-2 border rounded-lg" value={form.healthStatus} onChange={e => setForm({ ...form, healthStatus: e.target.value })}>
+                    <input className="input-field font-semibold text-[#253D2E]" placeholder={t('ph-tag')} value={form.tag} onChange={e => setForm({ ...form, tag: e.target.value })} />
+                    <input className="input-field font-semibold text-[#253D2E]" type="number" placeholder={t('ph-age')} value={form.age} onChange={e => setForm({ ...form, age: +e.target.value })} />
+                    <select className="input-field font-semibold text-[#253D2E]" value={form.healthStatus} onChange={e => setForm({ ...form, healthStatus: e.target.value })}>
                         <option value="">{t('opt-select-status')}</option>
                         <option value="Healthy">{t('opt-healthy')}</option>
                         <option value="Sick">{t('opt-sick')}</option>
                         <option value="Pregnant">{t('opt-pregnant')}</option>
                     </select>
-                    <input className="p-2 border rounded-lg" placeholder={t('ph-owner')} value={form.owner} onChange={e => setForm({ ...form, owner: e.target.value })} />
-                    <button type="submit" className="bg-emerald-600 text-white font-bold rounded-lg hover:bg-emerald-700 transition">{t('btn-add-cow')}</button>
+                    <input className="input-field font-semibold text-[#253D2E]" placeholder={t('ph-owner')} value={form.owner} onChange={e => setForm({ ...form, owner: e.target.value })} />
+                    <button type="submit" className="btn-primary w-full shadow-glow disabled:opacity-50 flex items-center justify-center h-[52px] bg-[#253D2E] hover:bg-[#0D1A12] text-white">
+                        {t('btn-add-cow')}
+                    </button>
                 </form>
             </div>
 
@@ -87,3 +96,4 @@ export default function Cows() {
         </div>
     )
 }
+

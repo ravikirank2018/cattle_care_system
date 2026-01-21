@@ -317,3 +317,4 @@ def scan_disease():
 };
 
 export default SystemWorkflow;
+

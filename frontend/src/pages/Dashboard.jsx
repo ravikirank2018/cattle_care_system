@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-import { Activity, AlertTriangle, DollarSign, CloudSun, BarChart3, Video, Warehouse, Map, Droplets, Wheat, Stethoscope, MapPin, ScrollText, TrendingUp, CircleDollarSign } from 'lucide-react';
+import { Activity, AlertTriangle, DollarSign, CloudSun, BarChart3, Video, Warehouse, Map, Droplets, Wheat, Stethoscope, MapPin, ScrollText, TrendingUp, CircleDollarSign, LayoutGrid } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { Bar } from 'react-chartjs-2';
 import 'chart.js/auto';
@@ -53,127 +53,131 @@ const Dashboard = () => {
         datasets: [{
             label: t('chart-milk') || 'Milk Yield (Liters)',
             data: data.milk_chart.map(m => m.value),
-            backgroundColor: 'rgba(16, 185, 129, 0.6)',
-            borderRadius: 8
+            backgroundColor: '#B6E63E', // Capital Lime
+            borderRadius: 6
         }]
     };
 
     return (
-        <div className="space-y-6 animate-fade-in pb-10">
-            <header className="flex justify-between items-end">
+        <div className="space-y-8 animate-fade-in pb-10">
+            <header className="flex justify-between items-end mb-8 animate-fade-in">
                 <div>
-                    <h1 className="text-4xl font-bold text-gray-800">{t('title-dashboard')}</h1>
-                    <p className="text-gray-500 mt-2">{t('subtitle-dashboard')}</p>
+                    <h1 className="text-4xl font-black text-[#253D2E] tracking-tight leading-tight">{t('title-dashboard')}</h1>
+                    <p className="text-[#4A6741] font-medium mt-2 text-lg">{t('subtitle-dashboard')}</p>
                 </div>
                 <div className="flex gap-3">
-                    <div className="bg-white/80 p-2 px-4 rounded-full text-xs font-bold border shadow-sm flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span> {t('status-db')}
+                    <div className="bg-[#B6E63E] text-[#253D2E] p-2 px-4 rounded-xl text-xs font-bold shadow-lg flex items-center gap-2 transform rotate-1">
+                        <span className="w-2 h-2 rounded-full bg-[#253D2E] animate-pulse"></span> {t('status-db')}
                     </div>
                 </div>
             </header>
 
-            {/* QUICK ACTIONS WIDGETS */}
-            <div className="mb-8">
-                <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-                    <span className="w-1.5 h-8 bg-indigo-600 rounded-full"></span> Quick Actions
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <Link to="/cows" className="glass-card p-6 group hover:-translate-y-2 transition duration-500 relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/10 rounded-full blur-2xl -mr-10 -mt-10 transition group-hover:bg-emerald-500/20"></div>
-                        <div className="flex justify-between items-start mb-4 relative z-10">
-                            <div className="p-4 bg-gradient-to-br from-emerald-100 to-emerald-50 rounded-2xl text-emerald-600 group-hover:scale-110 transition duration-300 shadow-sm"><ScrollText size={28} /></div>
-                            <span className="bg-emerald-100/50 text-emerald-800 text-xs font-bold px-3 py-1 rounded-full border border-emerald-200/50">{data.stats.total_cattle} Total</span>
-                        </div>
-                        <div className="relative z-10">
-                            <h3 className="text-lg font-bold text-gray-800 group-hover:text-emerald-700 transition">{t('nav-cows')}</h3>
-                            <p className="text-sm text-gray-500 mt-1 leading-relaxed">Manage herd registry & health records</p>
+            {/* HERO SECTION - 3D BLOCKS STYLE */}
+            <div className="mb-12 animate-fade-in-up">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative">
+
+                    {/* Step 1 - Register */}
+                    <Link to="/cows" className="relative group cursor-pointer transition-transform duration-300 hover:-translate-y-2">
+                        <div className="bg-[#253D2E] rounded-3xl p-8 text-white h-full relative overflow-hidden shadow-[8px_8px_0px_#B6E63E] border border-[#2a4d3a]">
+                            <div className="absolute -right-10 -top-10 w-40 h-40 bg-[#4A6741] rounded-full blur-3xl opacity-20"></div>
+                            <div className="w-16 h-16 bg-[#B6E63E] text-[#253D2E] rounded-2xl flex items-center justify-center text-2xl font-black mb-6 shadow-inner">
+                                <ScrollText size={32} />
+                            </div>
+                            <h3 className="text-2xl font-bold mb-2 tracking-tight">{t('step-1-title') || 'Register Cattle'}</h3>
+                            <p className="text-gray-300 font-medium leading-relaxed">{t('step-1-desc') || 'Add your herd details to the digital registry.'}</p>
+                            <div className="absolute bottom-6 right-6 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <span className="bg-[#B6E63E] text-[#253D2E] text-xs font-bold px-3 py-1 rounded-full">Start Now &rarr;</span>
+                            </div>
                         </div>
                     </Link>
 
-                    <Link to="/market-trade" className="glass-card p-6 group hover:-translate-y-2 transition duration-500 relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/10 rounded-full blur-2xl -mr-10 -mt-10 transition group-hover:bg-blue-500/20"></div>
-                        <div className="flex justify-between items-start mb-4 relative z-10">
-                            <div className="p-4 bg-gradient-to-br from-blue-100 to-blue-50 rounded-2xl text-blue-600 group-hover:scale-110 transition duration-300 shadow-sm"><TrendingUp size={28} /></div>
-                            <span className="bg-blue-100/50 text-blue-800 text-xs font-bold px-3 py-1 rounded-full border border-blue-200/50">{data.stats.active_trades || 3} Active</span>
-                        </div>
-                        <div className="relative z-10">
-                            <h3 className="text-lg font-bold text-gray-800 group-hover:text-blue-700 transition">{t('dash-active-trades')}</h3>
-                            <p className="text-sm text-gray-500 mt-1 leading-relaxed">Fair price calculator & sales</p>
-                        </div>
-                    </Link>
-
-                    <Link to="/grants" className="glass-card p-6 group hover:-translate-y-2 transition duration-500 relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/10 rounded-full blur-2xl -mr-10 -mt-10 transition group-hover:bg-amber-500/20"></div>
-                        <div className="flex justify-between items-start mb-4 relative z-10">
-                            <div className="p-4 bg-gradient-to-br from-amber-100 to-amber-50 rounded-2xl text-amber-600 group-hover:scale-110 transition duration-300 shadow-sm"><CircleDollarSign size={28} /></div>
-                            <span className="bg-amber-100/50 text-amber-800 text-xs font-bold px-3 py-1 rounded-full border border-amber-200/50">{data.stats.available_grants || 4} New</span>
-                        </div>
-                        <div className="relative z-10">
-                            <h3 className="text-lg font-bold text-gray-800 group-hover:text-amber-700 transition">{t('dash-govt-grants')}</h3>
-                            <p className="text-sm text-gray-500 mt-1 leading-relaxed">View available subsidies</p>
+                    {/* Step 2 - Monitor */}
+                    <Link to="/disease" className="relative group cursor-pointer transition-transform duration-300 hover:-translate-y-2">
+                        <div className="bg-[#4A6741] rounded-3xl p-8 text-white h-full relative overflow-hidden shadow-[8px_8px_0px_#253D2E]">
+                            <div className="absolute -left-10 -bottom-10 w-40 h-40 bg-[#B6E63E] rounded-full blur-3xl opacity-20"></div>
+                            <div className="w-16 h-16 bg-white text-[#4A6741] rounded-2xl flex items-center justify-center text-2xl font-black mb-6 shadow-inner">
+                                <Stethoscope size={32} />
+                            </div>
+                            <h3 className="text-2xl font-bold mb-2 tracking-tight">{t('step-2-title') || 'Monitor Health'}</h3>
+                            <p className="text-green-50 font-medium leading-relaxed">{t('step-2-desc') || 'Use AI Disease Scanner to ensure well-being.'}</p>
                         </div>
                     </Link>
 
-                    <Link to="/health" className="glass-card p-6 group hover:-translate-y-2 transition duration-500 relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-24 h-24 bg-red-500/10 rounded-full blur-2xl -mr-10 -mt-10 transition group-hover:bg-red-500/20"></div>
-                        <div className="flex justify-between items-start mb-4 relative z-10">
-                            <div className="p-4 bg-gradient-to-br from-red-100 to-red-50 rounded-2xl text-red-600 group-hover:scale-110 transition duration-300 shadow-sm"><Activity size={28} /></div>
-                            <span className={`text-xs font-bold px-3 py-1 rounded-full border ${data.stats.health_risk_level === 'Low' ? 'bg-green-100/50 text-green-700 border-green-200/50' : 'bg-red-100/50 text-red-700 border-red-200/50'}`}>
-                                {data.stats.health_risk_level || 'Normal'} Risk
-                            </span>
-                        </div>
-                        <div className="relative z-10">
-                            <h3 className="text-lg font-bold text-gray-800 group-hover:text-red-700 transition">{t('dash-health-ai')}</h3>
-                            <p className="text-sm text-gray-500 mt-1 leading-relaxed">Predictive analysis & checks</p>
+                    {/* Step 3 - Access */}
+                    <Link to="/services" className="relative group cursor-pointer transition-transform duration-300 hover:-translate-y-2">
+                        <div className="bg-white rounded-3xl p-8 h-full relative overflow-hidden shadow-[8px_8px_0px_#4A6741] border border-[#253D2E]/10">
+                            <div className="w-16 h-16 bg-[#253D2E] text-[#B6E63E] rounded-2xl flex items-center justify-center text-2xl font-black mb-6 shadow-xl">
+                                <LayoutGrid size={32} />
+                            </div>
+                            <h3 className="text-2xl font-bold text-[#253D2E] mb-2 tracking-tight">{t('step-3-title') || 'Access Services'}</h3>
+                            <p className="text-[#4A6741] font-medium leading-relaxed">{t('step-3-desc') || 'Get fair trade prices and government grants.'}</p>
                         </div>
                     </Link>
                 </div>
             </div>
 
-            {/* 1. TOP STATS */}
+            {/* QUICK ACTIONS WIDGETS */}
+            <div className="mb-8 hidden">
+                {/* Hidden as duplicated by Hero 3D Blocks, cleaner UI */}
+            </div>
+
+            {/* 1. TOP STATS - 3D Minimal */}
+            <h2 className="text-2xl font-bold text-[#253D2E] mb-6 flex items-center gap-2">
+                <span className="w-3 h-8 bg-[#253D2E] rounded-r-full"></span> Farm Metrics
+            </h2>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <div className="glass-card p-6 flex items-center gap-5 border-l-4 border-emerald-500">
-                    <div className="bg-emerald-100 text-emerald-600 p-3 rounded-full"><Activity size={24} /></div>
-                    <div><p className="text-gray-500 text-sm font-bold uppercase">{t('total-cattle')}</p><p className="text-3xl font-bold">{data.stats.total_cattle}</p></div>
+                <div className="bg-[#F4F7F4] p-6 rounded-3xl border border-[#253D2E]/10 hover:shadow-[5px_5px_0px_#B6E63E] transition-all cursor-default relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 w-20 h-20 bg-[#B6E63E]/20 rounded-bl-full -mr-4 -mt-4 transition-all group-hover:scale-110"></div>
+                    <div className="text-[#4A6741] font-bold uppercase text-xs tracking-wider mb-2">{t('total-cattle')}</div>
+                    <div className="text-4xl font-black text-[#253D2E]">{data.stats.total_cattle}</div>
+                    <Activity className="absolute bottom-6 right-6 text-[#253D2E]/10" size={48} />
                 </div>
-                <div className="glass-card p-6 flex items-center gap-5 border-l-4 border-red-500">
-                    <div className="bg-red-100 text-red-600 p-3 rounded-full"><AlertTriangle size={24} /></div>
-                    <div><p className="text-gray-500 text-sm font-bold uppercase">{t('health-alerts')}</p><p className="text-3xl font-bold text-red-600">{data.stats.health_alerts}</p></div>
+
+                <div className="bg-[#F4F7F4] p-6 rounded-3xl border border-[#253D2E]/10 hover:shadow-[5px_5px_0px_#ef4444] transition-all cursor-default relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 w-20 h-20 bg-red-100 rounded-bl-full -mr-4 -mt-4 transition-all group-hover:scale-110"></div>
+                    <div className="text-red-500 font-bold uppercase text-xs tracking-wider mb-2">{t('health-alerts')}</div>
+                    <div className="text-4xl font-black text-[#253D2E]">{data.stats.health_alerts}</div>
+                    <AlertTriangle className="absolute bottom-6 right-6 text-red-500/10" size={48} />
                 </div>
-                {/* Updated Market Price Label */}
-                <div className="glass-card p-6 flex items-center gap-5 border-l-4 border-blue-500">
-                    <div className="bg-blue-100 text-blue-600 p-3 rounded-full"><DollarSign size={24} /></div>
-                    <div><p className="text-gray-500 text-sm font-bold uppercase">{t('market-rate')}</p><p className="text-3xl font-bold text-gray-800">₹{data.stats.market_rate}<span className="text-xs font-normal text-gray-400">{t('unit-kg')}</span></p></div>
+
+                <div className="bg-[#253D2E] p-6 rounded-3xl text-white hover:shadow-[5px_5px_0px_#4A6741] transition-all cursor-default relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 w-20 h-20 bg-[#B6E63E]/20 rounded-bl-full -mr-4 -mt-4 transition-all group-hover:scale-110"></div>
+                    <div className="text-[#B6E63E] font-bold uppercase text-xs tracking-wider mb-2">{t('market-rate')}</div>
+                    <div className="text-4xl font-black text-white flex items-baseline gap-1">₹{data.stats.market_rate}<span className="text-sm font-medium opacity-60">/kg</span></div>
+                    <DollarSign className="absolute bottom-6 right-6 text-white/10" size={48} />
                 </div>
-                <div className="glass-card p-6 flex items-center gap-5 border-l-4 border-amber-500">
-                    <div className="bg-amber-100 text-amber-600 p-3 rounded-full"><CloudSun size={24} /></div>
-                    <div><p className="text-gray-500 text-sm font-bold uppercase">{t('weather')}</p><p className="text-3xl font-bold text-gray-800">{data.stats.weather}</p></div>
+
+                <div className="bg-[#B6E63E] p-6 rounded-3xl text-[#253D2E] hover:shadow-[5px_5px_0px_#253D2E] transition-all cursor-default relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 w-20 h-20 bg-white/30 rounded-bl-full -mr-4 -mt-4 transition-all group-hover:scale-110"></div>
+                    <div className="text-[#253D2E]/80 font-bold uppercase text-xs tracking-wider mb-2">{t('weather')}</div>
+                    <div className="text-4xl font-black text-[#253D2E]">{data.stats.weather}</div>
+                    <CloudSun className="absolute bottom-6 right-6 text-[#253D2E]/10" size={48} />
                 </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* 2. INFRASTRUCTURE & RESOURCES */}
                 <div className="glass-card p-6 lg:col-span-1 space-y-6">
-                    <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2"><Warehouse size={20} className="text-indigo-500" /> {t('dash-infra')}</h2>
+                    <h2 className="text-lg font-bold text-[#253D2E] flex items-center gap-2"><Warehouse size={20} className="text-[#4A6741]" /> {t('dash-infra')}</h2>
 
                     <div className="grid grid-cols-3 gap-4 text-center">
-                        <div className="p-3 bg-gray-50 rounded-lg border">
-                            <Map size={24} className="mx-auto text-green-600 mb-1" />
+                        <div className="p-3 bg-white rounded-lg border border-gray-100 shadow-sm">
+                            <Map size={24} className="mx-auto text-[#253D2E] mb-1" />
                             <p className="text-xl font-bold">{data.infrastructure.acres}</p>
                             <p className="text-xs text-gray-500">{t('dash-acres')}</p>
                         </div>
-                        <div className="p-3 bg-gray-50 rounded-lg border">
-                            <Warehouse size={24} className="mx-auto text-orange-600 mb-1" />
+                        <div className="p-3 bg-white rounded-lg border border-gray-100 shadow-sm">
+                            <Warehouse size={24} className="mx-auto text-[#4A6741] mb-1" />
                             <p className="text-xl font-bold">{data.infrastructure.sheds}</p>
                             <p className="text-xs text-gray-500">{t('dash-sheds')}</p>
                         </div>
-                        <div className="p-3 bg-gray-50 rounded-lg border">
+                        <div className="p-3 bg-white rounded-lg border border-gray-100 shadow-sm">
                             <div className="relative inline-block">
-                                <Video size={24} className="mx-auto text-blue-600 mb-1" />
-                                <span className="absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                                <Video size={24} className="mx-auto text-[#253D2E] mb-1" />
+                                <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
                             </div>
                             <p className="text-xs font-bold mt-1">CCTV</p>
-                            <p className="text-[10px] text-green-600 font-bold">{t('status-live')}</p>
+                            <p className="text-[10px] text-[#4A6741] font-bold">{t('status-live')}</p>
                         </div>
                     </div>
 
@@ -182,7 +186,7 @@ const Dashboard = () => {
                             <div className="flex justify-between text-xs font-bold text-gray-500 mb-1">
                                 <span className="flex items-center gap-1"><Wheat size={14} /> {t('dash-feed')}</span> <span>{data.infrastructure.feed_stock}%</span>
                             </div>
-                            <div className="h-2 bg-gray-200 rounded-full overflow-hidden"><div className="h-full bg-amber-500" style={{ width: `${data.infrastructure.feed_stock}%` }}></div></div>
+                            <div className="h-2 bg-gray-200 rounded-full overflow-hidden"><div className="h-full bg-[#B6E63E]" style={{ width: `${data.infrastructure.feed_stock}%` }}></div></div>
                         </div>
                         <div>
                             <div className="flex justify-between text-xs font-bold text-gray-500 mb-1">
@@ -195,7 +199,7 @@ const Dashboard = () => {
 
                 {/* 3. CHART */}
                 <div className="glass-card p-6 lg:col-span-2">
-                    <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2 mb-4"><BarChart3 size={20} className="text-emerald-500" /> {t('dash-trends')}</h2>
+                    <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2 mb-4"><BarChart3 size={20} className="text-indigo-500" /> {t('dash-trends')}</h2>
                     <div className="h-56">
                         <Bar data={chartConfig} options={{ responsive: true, maintainAspectRatio: false }} />
                     </div>
@@ -219,24 +223,24 @@ const Dashboard = () => {
                 </div>
 
                 {/* 5. NEARBY VETS */}
-                <div className="glass-card p-6 bg-gradient-to-br from-indigo-50 to-white">
-                    <h2 className="text-lg font-bold text-indigo-900 flex items-center gap-2 mb-4"><MapPin size={20} className="text-indigo-600" /> {t('dash-vets')}</h2>
+                <div className="glass-card p-6 bg-gradient-to-br from-[#F4F7F4] to-white">
+                    <h2 className="text-lg font-bold text-[#253D2E] flex items-center gap-2 mb-4"><MapPin size={20} className="text-[#4A6741]" /> {t('dash-vets')}</h2>
                     <div className="space-y-3">
                         {data.nearby_vets.map((v, i) => (
-                            <div key={i} className="flex justify-between items-center p-3 bg-white rounded-lg shadow-sm border border-indigo-100">
+                            <div key={i} className="flex justify-between items-center p-3 bg-white rounded-lg shadow-sm border border-gray-100">
                                 <div>
-                                    <p className="font-bold text-gray-800">{v.name}</p>
+                                    <p className="font-bold text-[#253D2E]">{v.name}</p>
                                     <div className="flex items-center gap-2 text-xs text-gray-500">
-                                        <span>{v.dist} away</span> • <span className="text-yellow-500">★ {v.rating}</span>
+                                        <span>{v.dist} away</span> • <span className="text-[#B6E63E] text-sm">★ {v.rating}</span>
                                     </div>
                                 </div>
-                                <button onClick={() => openMap()} className="px-3 py-1 bg-indigo-100 text-indigo-700 text-xs font-bold rounded-full hover:bg-indigo-200 transition">
+                                <button onClick={() => openMap()} className="px-3 py-1 bg-[#253D2E] text-[#B6E63E] text-xs font-bold rounded-full hover:bg-[#0D1A12] transition shadow-sm">
                                     {t('dash-nav')}
                                 </button>
                             </div>
                         ))}
                     </div>
-                    <button onClick={() => openMap()} className="w-full mt-4 py-2 bg-indigo-600 text-white rounded-lg font-bold text-sm hover:bg-indigo-700 transition shadow-lg shadow-indigo-200">
+                    <button onClick={() => openMap()} className="w-full mt-4 py-2 bg-[#253D2E] text-white rounded-lg font-bold text-sm hover:bg-[#0D1A12] transition shadow-lg">
                         {t('dash-view-map')}
                     </button>
                     <p className="text-[10px] text-center text-gray-400 mt-2">{t('disclaimer-gps')}</p>
@@ -247,3 +251,4 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+
