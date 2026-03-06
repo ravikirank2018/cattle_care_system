@@ -42,7 +42,11 @@ bcrypt = Bcrypt(app)
 
 # API Key Rotation Setup
 # API Key Rotation Setup
+<<<<<<< HEAD
 PAID_KEY = "AIzaSyAWL-Pq0ynT2vKRVPg1VAJNATXgG_rRGJI"
+=======
+
+>>>>>>> 9450e49ce15415338696c24ef8048c027d0db1af
 
 API_KEYS = [PAID_KEY]
 
