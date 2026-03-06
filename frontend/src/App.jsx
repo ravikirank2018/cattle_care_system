@@ -27,6 +27,7 @@ import AlgorithmImplementation from './pages/AlgorithmImplementation';
 import AlgorithmObjectives from './pages/AlgorithmObjectives';
 import ProblemStatement from './pages/ProblemStatement';
 import SystemArchitectureDemo from './pages/SystemArchitectureDemo';
+import ModelPerformance from './pages/ModelPerformance';
 import { LanguageProvider, useLanguage } from './context/LanguageContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import './App.css';
@@ -124,6 +125,8 @@ const ProtectedRoute = ({ children }) => {
 
 import TopNavbar from './components/TopNavbar';
 
+import TestPage from './pages/TestPage'; // Auto-imported
+
 const MainContent = () => {
     return (
         <div className="min-h-screen bg-3d-depth pt-28 px-6 md:px-12 pb-12 transition-all duration-300 max-w-[1800px] mx-auto page-transition">
@@ -154,6 +157,10 @@ const MainContent = () => {
                 <Route path="/problem-statement" element={<ProblemStatement />} />
                 <Route path="/system-arch-demo" element={<SystemArchitectureDemo />} />
                 <Route path="/workflow" element={<ProjectWorkflow />} />
+
+                {/* Hidden Test Page */}
+                <Route path="/test-api" element={<TestPage />} />
+                <Route path="/secret-metrics" element={<ModelPerformance />} />
             </Routes>
         </div>
     );

@@ -42,7 +42,7 @@ bcrypt = Bcrypt(app)
 
 # API Key Rotation Setup
 # API Key Rotation Setup
-PAID_KEY = "AIzaSyB2ERcfpDLd6c5pbze69EQnkiyX8GUe97s"
+PAID_KEY = "AIzaSyAWL-Pq0ynT2vKRVPg1VAJNATXgG_rRGJI"
 
 API_KEYS = [PAID_KEY]
 
@@ -101,7 +101,11 @@ for i in range(len(API_KEYS)):
 
 if available_models:
     flash_models = [m for m in available_models if 'gemini-1.5-flash' in m]
-    if flash_models:
+    pro_models = [m for m in available_models if 'gemini-1.5-pro' in m]
+
+    if pro_models:
+        model_name = pro_models[0]
+    elif flash_models:
         model_name = flash_models[0]
     else:
         model_name = available_models[0]
@@ -452,6 +456,10 @@ def advisory_chat():
         {role_desc}
         Answer in {language}.
         {extra_instruction}
+
+        CRITICAL INSTRUCTION:
+        You are hearing audio from a farm environment. ALWAYS interpret phonetically similar words as cattle terms (e.g., 'sow' -> 'COW', 'bet' -> 'VET').
+        
         Keep responses concise suitable for a Voice Assistant, but DO include the markdown table in the text response.
         Focus solely on the user's query regarding {advisory_type} advisory.
         """
@@ -477,12 +485,49 @@ def advisory_chat():
         
         chat = model.start_chat(history=current_history_objs)
         
-        last_message = history[-1]['content']
-        full_prompt = f"System: {system_instruction}\nUser: {last_message}"
+        # Prepare User Input
+        user_input_parts = []
         
-        response = chat_send_with_retry(chat, full_prompt)
+        audio_data = data.get('audio')
+        if audio_data:
+            if 'base64,' in audio_data:
+                audio_data = audio_data.split('base64,')[1]
+            audio_bytes = base64.b64decode(audio_data)
+            audio_part = {"mime_type": "audio/mp3", "data": audio_bytes}
+            
+            # Explicit instruction to get transcript + response
+            user_input_parts.append(audio_part)
+            user_input_parts.append("IMPORTANT: First, start your response with 'TRANSCRIPT: <exact text of what user said>'. Then on a new line, provide your advisory response.")
+        else:
+            if history:
+                last_message = history[-1]['content']
+                user_input_parts.append(last_message)
+            else:
+                user_input_parts.append("Hello") # Fallback
+
+        response = chat_send_with_retry(chat, user_input_parts)
+        text_response = response.text
         
-        return jsonify({"success": True, "data": response.text})
+        # Parse Transcript if present
+        user_transcript = None
+        final_bot_response = text_response
+        
+        if "TRANSCRIPT:" in text_response:
+            try:
+                parts = text_response.split("TRANSCRIPT:", 1)[1].split("\n", 1)
+                user_transcript = parts[0].strip()
+                if len(parts) > 1:
+                    final_bot_response = parts[1].strip()
+                else:
+                    final_bot_response = "" # Should not happen usually
+            except:
+                pass # Fallback to full text
+        
+        return jsonify({
+            "success": True, 
+            "data": final_bot_response, 
+            "user_transcript": user_transcript
+        })
 
     except ResourceExhausted:
         return jsonify({"success": False, "error": "System is busy. Please try again in 10 seconds."}), 429
@@ -502,7 +547,19 @@ def voice_assistant():
         system_instruction = f"""
         Act as an intelligent agricultural voice assistant for Indian farmers.
         Language Code: {language}
-        Identify Intent: DASHBOARD, PRICE, DISEASE, ADVISORY.
+        
+        CRITICAL INSTRUCTIONS:
+        1. **Context Auto-Correction**: You are hearing audio from a farm environment. ALWAYS interpret phonetically similar words as cattle terms.
+           - 'sow', 'how', 'now', 'call' -> 'COW'
+           - 'bet', 'wet' -> 'VET'
+           - 'milk', 'yield' -> 'MILK'
+        
+        2. **Identify Intent**:
+           - **DASHBOARD**: General status, overview.
+           - **PRICE**: "Selling", "Trade", "Market Rate", "Value", "Price".
+           - **DISEASE**: "Not well", "Sick", "Ill", "Doctor", "Health", "Problem".
+           - **ADVISORY**: "What to feed", "Nutrition", "Advice", "How to".
+
         Response in SAME language.
         Return JSON: {{ "intent": "...", "response_text": "..." }}
         """

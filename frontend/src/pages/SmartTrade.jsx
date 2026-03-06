@@ -68,17 +68,38 @@ const SmartTrade = () => {
         setLoading(false);
     };
 
-    const downloadPDF = () => {
-        const element = document.getElementById('valuation-report');
+    const resultRef = React.useRef(null);
+
+    const downloadPDF = async () => {
+        const element = resultRef.current;
+        if (!element) {
+            console.error("Content not found for PDF generation");
+            alert("Error: Could not find content to generate PDF.");
+            return;
+        }
+
         const opt = {
             margin: 0.5,
             filename: `Cattle_Valuation_${new Date().toISOString().slice(0, 10)}.pdf`,
             image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2 },
+            html2canvas: { scale: 2, useCORS: true, logging: true },
             jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
         };
 
-        html2pdf().set(opt).from(element).save();
+        try {
+            // Handle different import structures (ESM/CommonJS compatibility)
+            const html2pdfLib = html2pdf.default || html2pdf;
+
+            if (typeof html2pdfLib !== 'function') {
+                throw new Error("html2pdf library not correctly loaded");
+            }
+
+            await html2pdfLib().set(opt).from(element).save();
+        } catch (err) {
+            console.error("PDF Download failed:", err);
+            // Show the specific error message to the user for better debugging
+            alert(`Failed to download PDF: ${err.message || err}`);
+        }
     };
 
     const chartData = {
@@ -162,26 +183,26 @@ const SmartTrade = () => {
                             </select>
                         </div>
                         <div>
-                            <label className="block text-sm font-bold text-[#253D2E] mb-2">Vaccination Status</label>
+                            <label className="block text-sm font-bold text-[#253D2E] mb-2">{t('lbl-vaccination')}</label>
                             <select name="vaccination" className="w-full bg-[#F4F7F4] border-[#253D2E]/20 focus:border-[#B6E63E] focus:ring-[#B6E63E] text-[#253D2E] font-bold" onChange={handleChange} value={formData.vaccination}>
-                                <option value="none">None / Unknown</option>
-                                <option value="partially">Partially Vaccinated</option>
-                                <option value="fully">Fully Vaccinated</option>
+                                <option value="none">{t('opt-vac-none')}</option>
+                                <option value="partially">{t('opt-vac-partial')}</option>
+                                <option value="fully">{t('opt-vac-full')}</option>
                             </select>
                         </div>
                     </div>
 
                     <div className="grid grid-cols-2 gap-6 mt-4">
                         <div>
-                            <label className="block text-sm font-bold text-[#253D2E] mb-2">Lactation Cycle (1-10)</label>
+                            <label className="block text-sm font-bold text-[#253D2E] mb-2">{t('lbl-lactation')}</label>
                             <input name="lactation_cycle" type="number" className="w-full bg-[#F4F7F4] border-[#253D2E]/20 focus:border-[#B6E63E] focus:ring-[#B6E63E] text-[#253D2E] font-bold" placeholder="2" onChange={handleChange} value={formData.lactation_cycle} />
                         </div>
                         <div>
-                            <label className="block text-sm font-bold text-[#253D2E] mb-2">Disease History</label>
+                            <label className="block text-sm font-bold text-[#253D2E] mb-2">{t('lbl-disease-hist')}</label>
                             <div className="flex flex-wrap gap-2 text-sm text-[#4A6741] font-medium">
-                                <label className="flex items-center gap-1 cursor-pointer hover:text-[#253D2E]"><input type="checkbox" value="FMD" onChange={handleCheckboxChange} checked={formData.disease_history.includes('FMD')} className="accent-[#253D2E]" /> FMD</label>
-                                <label className="flex items-center gap-1 cursor-pointer hover:text-[#253D2E]"><input type="checkbox" value="Mastitis" onChange={handleCheckboxChange} checked={formData.disease_history.includes('Mastitis')} className="accent-[#253D2E]" /> Mastitis</label>
-                                <label className="flex items-center gap-1 cursor-pointer hover:text-[#253D2E]"><input type="checkbox" value="Brucellosis" onChange={handleCheckboxChange} checked={formData.disease_history.includes('Brucellosis')} className="accent-[#253D2E]" /> Brucellosis</label>
+                                <label className="flex items-center gap-1 cursor-pointer hover:text-[#253D2E]"><input type="checkbox" value="FMD" onChange={handleCheckboxChange} checked={formData.disease_history.includes('FMD')} className="accent-[#253D2E]" /> {t('dis-fmd')}</label>
+                                <label className="flex items-center gap-1 cursor-pointer hover:text-[#253D2E]"><input type="checkbox" value="Mastitis" onChange={handleCheckboxChange} checked={formData.disease_history.includes('Mastitis')} className="accent-[#253D2E]" /> {t('dis-mastitis')}</label>
+                                <label className="flex items-center gap-1 cursor-pointer hover:text-[#253D2E]"><input type="checkbox" value="Brucellosis" onChange={handleCheckboxChange} checked={formData.disease_history.includes('Brucellosis')} className="accent-[#253D2E]" /> {t('dis-brucellosis')}</label>
                             </div>
                         </div>
                     </div>
@@ -216,51 +237,51 @@ const SmartTrade = () => {
                     {result && (
                         <>
                             {/* REPORT CERTIFICATE (ID for PDF) */}
-                            <div id="valuation-report" className="bg-white p-8 rounded-xl border border-gray-100 shadow-xl relative overflow-hidden ring-1 ring-[#253D2E]/5">
-                                <div className="absolute top-4 right-4 opacity-10"><Stamp size={80} className="text-[#253D2E]" /></div>
+                            <div id="valuation-report" ref={resultRef} className="bg-[#ffffff] p-8 rounded-xl border-2 border-[#f3f4f6] relative overflow-hidden">
+                                <div className="absolute top-4 right-4"><Stamp size={80} color="#253D2E" style={{ opacity: 0.1 }} /></div>
 
                                 <div className="border-b-2 border-[#253D2E] pb-4 mb-6">
                                     <h2 className="text-2xl font-bold text-[#253D2E] uppercase tracking-widest">{t('cert-title')}</h2>
-                                    <p className="text-sm text-gray-500">{t('cert-subtitle')} • {new Date().toLocaleDateString()}</p>
+                                    <p className="text-sm text-[#6b7280]">{t('cert-subtitle')} • {new Date().toLocaleDateString()}</p>
                                 </div>
 
                                 <div className="flex justify-between items-end mb-8">
                                     <div>
-                                        <p className="text-sm font-bold text-gray-500 uppercase">{t('cert-value')}</p>
+                                        <p className="text-sm font-bold text-[#6b7280] uppercase">{t('cert-value')}</p>
                                         <p className="text-5xl font-extrabold text-[#253D2E]">₹{result.estimated_price.toLocaleString()}</p>
                                     </div>
                                     <div className="text-right">
-                                        <p className="text-sm font-bold text-gray-500">{t('cert-confidence')}</p>
+                                        <p className="text-sm font-bold text-[#6b7280]">{t('cert-confidence')}</p>
                                         <p className="text-xl font-bold text-[#4A6741]">98.5%</p>
                                     </div>
                                 </div>
 
-                                <div className="bg-[#F4F7F4] p-4 rounded-lg space-y-2 text-sm border border-gray-200 mb-6">
-                                    <h3 className="font-bold text-[#253D2E] border-b border-gray-300 pb-1 mb-2">{t('cert-proof')}</h3>
-                                    <div className="flex justify-between"><span className="text-gray-600">{t('cert-base')} ({formData.weight}kg)</span> <span className="font-mono">₹{result.breakdown.weight_value}</span></div>
-                                    <div className="flex justify-between"><span className="text-gray-600">{t('cert-milk')} ({formData.milk}L)</span> <span className="font-mono text-[#4A6741]">+ ₹{result.breakdown.milk_bonus}</span></div>
-                                    <div className="flex justify-between"><span className="text-gray-600">{t('cert-preg')}</span> <span className="font-mono text-purple-600">+ ₹{result.breakdown.pregnancy_bonus}</span></div>
-                                    <div className="flex justify-between"><span className="text-gray-600">{t('cert-age')} ({formData.age}m)</span> <span className="font-mono text-red-500">- ₹{result.breakdown.age_penalty}</span></div>
+                                <div className="bg-[#F4F7F4] p-4 rounded-lg space-y-2 text-sm border border-[#e5e7eb] mb-6">
+                                    <h3 className="font-bold text-[#253D2E] border-b border-[#d1d5db] pb-1 mb-2">{t('cert-proof')}</h3>
+                                    <div className="flex justify-between"><span className="text-[#4b5563]">{t('cert-base')} ({formData.weight}kg)</span> <span className="font-mono">₹{result.breakdown.weight_value}</span></div>
+                                    <div className="flex justify-between"><span className="text-[#4b5563]">{t('cert-milk')} ({formData.milk}L)</span> <span className="font-mono text-[#4A6741]">+ ₹{result.breakdown.milk_bonus}</span></div>
+                                    <div className="flex justify-between"><span className="text-[#4b5563]">{t('cert-preg')}</span> <span className="font-mono text-[#9333ea]">+ ₹{result.breakdown.pregnancy_bonus}</span></div>
+                                    <div className="flex justify-between"><span className="text-[#4b5563]">{t('cert-age')} ({formData.age}m)</span> <span className="font-mono text-[#ef4444]">- ₹{result.breakdown.age_penalty}</span></div>
 
                                     {result.breakdown.vaccination_bonus > 0 && (
-                                        <div className="flex justify-between"><span className="text-gray-600">Vaccination Bonus</span> <span className="font-mono text-[#4A6741]">+ ₹{result.breakdown.vaccination_bonus}</span></div>
+                                        <div className="flex justify-between"><span className="text-[#4b5563]">Vaccination Bonus</span> <span className="font-mono text-[#4A6741]">+ ₹{result.breakdown.vaccination_bonus}</span></div>
                                     )}
                                     {result.breakdown.health_penalty > 0 && (
-                                        <div className="flex justify-between"><span className="text-gray-600">Health History Penalty</span> <span className="font-mono text-red-500">- ₹{result.breakdown.health_penalty}</span></div>
+                                        <div className="flex justify-between"><span className="text-[#4b5563]">Health History Penalty</span> <span className="font-mono text-[#ef4444]">- ₹{result.breakdown.health_penalty}</span></div>
                                     )}
 
 
                                 </div>
 
                                 <div className="mb-6">
-                                    <h3 className="font-bold text-gray-700 mb-2">{t('cert-analysis')}</h3>
-                                    <p className="text-sm text-gray-600 italic bg-gray-50 p-3 rounded border-l-4 border-[#253D2E] whitespace-pre-wrap leading-relaxed">
+                                    <h3 className="font-bold text-[#374151] mb-2">{t('cert-analysis')}</h3>
+                                    <p className="text-sm text-[#4b5563] italic bg-[#f9fafb] p-3 rounded border-l-4 border-[#253D2E] whitespace-pre-wrap leading-relaxed">
                                         "{result.ai_analysis}"
                                     </p>
                                 </div>
 
-                                <div className="flex justify-between items-center mt-6 pt-4 border-t border-gray-100">
-                                    <div className="text-[10px] text-gray-400 uppercase tracking-wide">
+                                <div className="flex justify-between items-center mt-6 pt-4 border-t border-[#f3f4f6]">
+                                    <div className="text-[10px] text-[#9ca3af] uppercase tracking-wide">
                                         {t('cert-footer')} • ID: {Date.now().toString(36).toUpperCase()}
                                     </div>
                                     {/* Embed small QR in PDF too */}

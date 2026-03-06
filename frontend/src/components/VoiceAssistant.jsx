@@ -9,6 +9,11 @@ const VoiceAssistant = ({ currentLang, onNavigate }) => {
     const [transcript, setTranscript] = useState('');
     const transcriptRef = useRef('');
     const recognitionRef = useRef(null);
+
+    // Audio Recording
+    const mediaRecorderRef = useRef(null);
+    const audioChunksRef = useRef([]);
+
     const { t } = useLanguage();
 
     // Reset status when language changes
@@ -26,91 +31,112 @@ const VoiceAssistant = ({ currentLang, onNavigate }) => {
         }
     };
 
-    const startListening = () => {
-        if (!('webkitSpeechRecognition' in window)) {
-            alert("Browser not supported. Use Chrome.");
-            return;
-        }
-
+    const startListening = async () => {
         // Stop any existing speech
         window.speechSynthesis.cancel();
 
         setIsListening(true);
-        setStatus("Listening... (Tap to Stop & Send)");
+        setStatus("Listening... (Speak Clearly)");
         setTranscript('');
         transcriptRef.current = '';
+        audioChunksRef.current = [];
 
-        const recognition = new window.webkitSpeechRecognition();
-        recognition.lang = currentLang;
-        recognition.continuous = true; // Keep listening until user stops
-        recognition.interimResults = true; // Show results in real-time
+        // 1. Audio Recording (For High Accuracy Backend)
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            const mediaRecorder = new MediaRecorder(stream);
 
-        recognition.onstart = () => {
-            console.log("Voice started");
-        };
-
-        recognition.onend = () => {
-            console.log("Voice stopped naturally");
-            if (isListening) {
-                // If it stopped but we think we are listening (e.g. timeout), restart or just update state
-                // But normally with continuous=true it goes on for a while.
-                // We'll just update state if we haven't manually stopped.
-                setIsListening(false);
-            }
-        };
-
-        recognition.onerror = (e) => {
-            console.error(e);
-            setIsListening(false);
-            setStatus("Error: " + e.error);
-        };
-
-        recognition.onresult = (event) => {
-            let finalTranscript = '';
-            for (let i = event.resultIndex; i < event.results.length; ++i) {
-                if (event.results[i].isFinal) {
-                    finalTranscript += event.results[i][0].transcript;
+            mediaRecorder.ondataavailable = (event) => {
+                if (event.data.size > 0) {
+                    audioChunksRef.current.push(event.data);
                 }
-            }
-            // We can also use interim results for visual feedback
+            };
+
+            mediaRecorder.start();
+            mediaRecorderRef.current = mediaRecorder;
+        } catch (err) {
+            console.error("Mic Error:", err);
+            setStatus("Mic Access Denied");
+            setIsListening(false);
+            return;
+        }
+
+        // 2. Web Speech API (For Visual Feedback Only)
+        if ('webkitSpeechRecognition' in window) {
+            const recognition = new window.webkitSpeechRecognition();
+            recognition.lang = currentLang;
+            recognition.continuous = true;
+            recognition.interimResults = true;
+
             const current = event.results[event.results.length - 1][0].transcript;
             setTranscript(current);
-            transcriptRef.current = current;
-            setStatus(`Heard: "${current}"`);
-        };
+            transcriptRef.current = current; // Backup text
+            // setStatus(`Heard: "${current}"...`); // Hiding live text as requested
 
-        recognitionRef.current = recognition;
-        recognition.start();
-    };
+            recognition.onerror = (e) => {
+                console.warn("Speech API Error:", e.error);
+                // Don't stop merely on speech error, rely on Audio Recorder
+            };
 
-    const stopListening = () => {
-        if (recognitionRef.current) {
-            recognitionRef.current.stop();
-            setIsListening(false);
-
-            // Process captured transcript
-            setStatus("Processing...");
-            if (transcriptRef.current) {
-                processVoice(transcriptRef.current);
-            } else {
-                setStatus("No speech detected.");
-            }
+            recognitionRef.current = recognition;
+            recognition.start();
         }
     };
 
-    const processVoice = async (text) => {
-        if (!text) return;
+    const stopListening = () => {
+        setIsListening(false);
+        setStatus("Processing Audio...");
+
+        // Stop Speech Recognition (Visual)
+        if (recognitionRef.current) {
+            recognitionRef.current.stop();
+        }
+
+        // Stop Audio Recorder & Send
+        if (mediaRecorderRef.current) {
+            mediaRecorderRef.current.onstop = () => {
+                const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/mp3' });
+                const reader = new FileReader();
+                reader.readAsDataURL(audioBlob);
+                reader.onloadend = () => {
+                    const base64Audio = reader.result;
+                    processVoice(transcriptRef.current, base64Audio);
+                };
+            };
+            mediaRecorderRef.current.stop();
+            // Stop all tracks to release mic
+            mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
+        } else {
+            // Fallback if recorder failed but speech api worked
+            processVoice(transcriptRef.current, null);
+        }
+    };
+
+    const processVoice = async (text, audioBase64) => {
+        if (!text && !audioBase64) {
+            setStatus("No speech detected.");
+            return;
+        }
 
         try {
+            setStatus("Analyzing...");
             // Call Flask Backend
             const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:5000';
-            const res = await axios.post(`${API_URL}/api/chat`, {
-                transcript: text,
-                language: currentLang
-            });
+
+            // Prefer Audio for accuracy, text as backup/hint
+            const payload = {
+                language: currentLang,
+                transcript: text
+            };
+
+            if (audioBase64) {
+                payload.audio = audioBase64; // Direct Gemini Audio Processing
+            }
+
+            const res = await axios.post(`${API_URL}/api/chat`, payload);
 
             const { intent, response_text } = res.data;
-            setStatus(response_text); // Show response text
+            setStatus(response_text);
 
             // TTS
             speak(response_text, currentLang);
@@ -126,11 +152,9 @@ const VoiceAssistant = ({ currentLang, onNavigate }) => {
             let errMsg = "Connection Failed";
             if (err.response) {
                 errMsg = `Server Error (${err.response.status})`;
-            } else if (err.request) {
-                errMsg = "Network Error (Is Backend Running?)";
             }
             setStatus(errMsg);
-            speak("I cannot reach the server. Please check if Python is running.", 'en-US');
+            speak("I had trouble connecting. Please try again.", 'en-US');
         }
     };
 
@@ -145,7 +169,7 @@ const VoiceAssistant = ({ currentLang, onNavigate }) => {
 
             if (res.data.success && res.data.audio) {
                 const audio = new Audio(res.data.audio);
-                audio.play();
+                await audio.play();
             } else {
                 throw new Error("TTS failed");
             }

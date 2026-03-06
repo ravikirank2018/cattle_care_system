@@ -320,7 +320,18 @@ const translations = {
         'ph-age': 'e.g. 4',
         'ph-weight': 'kg',
         'ph-temp': '°F',
-        'ph-milk': 'Liters'
+        'ph-milk': 'Liters',
+
+        'lbl-vaccination': 'Vaccination Status',
+        'lbl-lactation': 'Lactation Cycle (1-10)',
+        'lbl-disease-hist': 'Disease History',
+        'opt-vac-none': 'None / Unknown',
+        'opt-vac-partial': 'Partially Vaccinated',
+        'opt-vac-full': 'Fully Vaccinated',
+        'dis-fmd': 'FMD (Hoof & Mouth)',
+        'dis-mastitis': 'Mastitis',
+        'dis-brucellosis': 'Brucellosis',
+
     },
     'hi-IN': {
         'title-dashboard': 'पशु फार्म डैशबोर्ड',
@@ -516,6 +527,17 @@ const translations = {
         'ph-weight': 'किग्रा',
         'ph-temp': '°F',
         'ph-milk': 'लीटर',
+
+        'lbl-vaccination': 'टीकाकरण की स्थिति',
+        'lbl-lactation': 'दुग्ध चक्र (1-10)',
+        'lbl-disease-hist': 'बीमारी का इतिहास',
+        'opt-vac-none': 'कोई नहीं / अज्ञात',
+        'opt-vac-partial': 'आंशिक रूप से टीका लगाया गया',
+        'opt-vac-full': 'पूरी तरह से टीका लगाया गया',
+        'dis-fmd': 'खुरपका-मुंहपका (FMD)',
+        'dis-mastitis': 'थनैला रोग (Mastitis)',
+        'dis-brucellosis': 'ब्रूसीलोसिस',
+
 
         // System Demo Keys
         'sys-header': 'प्लेटफॉर्म डेमो',
@@ -914,7 +936,18 @@ const translations = {
         'ph-age': 'ఉదా: 4',
         'ph-weight': 'kg',
         'ph-temp': '°F',
-        'ph-milk': 'లీటర్లు'
+        'ph-milk': 'లీటర్లు',
+
+        'lbl-vaccination': 'టీకా స్థితి',
+        'lbl-lactation': 'పాల చక్రం (1-10)',
+        'lbl-disease-hist': 'వ్యాధి చరిత్ర',
+        'opt-vac-none': 'ఏమీ లేదు / తెలియదు',
+        'opt-vac-partial': 'పాక్షికంగా టీకాలు వేయబడ్డాయి',
+        'opt-vac-full': 'పూర్తిగా టీకాలు వేయబడ్డాయి',
+        'dis-fmd': 'గాలికుంటు వ్యాధి (FMD)',
+        'dis-mastitis': 'పొదుగు వాపు (Mastitis)',
+        'dis-brucellosis': 'బర్ుసిల్లోసిస్',
+
     },
     'ta-IN': {
         'title-dashboard': 'பண்ணை டாஷ்போர்டு',
@@ -1175,6 +1208,17 @@ const translations = {
         'ph-temp': '°F',
         'ph-milk': 'லிட்டர்',
 
+        'lbl-vaccination': 'தடுப்பூசி நிலை',
+        'lbl-lactation': 'பாலூட்டும் சுழற்சி (1-10)',
+        'lbl-disease-hist': 'நோய் வரலாறு',
+        'opt-vac-none': 'எதுவுமில்லை / தெரியவில்லை',
+        'opt-vac-partial': 'பகுதி தடுப்பூசி போடப்பட்டது',
+        'opt-vac-full': 'முழுமையாக தடுப்பூசி போடப்பட்டது',
+        'dis-fmd': 'கால்நடைக் கோமாரி (FMD)',
+        'dis-mastitis': 'மடி நோய் (Mastitis)',
+        'dis-brucellosis': 'புருசெல்லோசிஸ்',
+
+
         // System Demo Keys
         'sys-header': 'விரிவான சிஸ்டம் டெமோ',
         'sys-s1-title': 'புதுமை உத்தி மற்றும் முக்கிய பணிப்பாய்வு',
@@ -1328,6 +1372,11 @@ const translations = {
         'lbl-age': 'ವಯಸ್ಸು (ತಿಂಗಳು)',
         'lbl-milk': 'ಹಾಲು (ಲೀಟರ್)',
         'lbl-preg': 'ಗರ್ಭಾವಸ್ಥೆ (ತಿಂಗಳು)',
+        'lbl-nose': 'ಮೂಗು ಸೋರುವಿಕೆ?',
+        'lbl-breath': 'ಉಸಿರಾಟದ ಶಬ್ದ?',
+        'lbl-fever': 'ಜ್ವರ?',
+        'lbl-high-fever': 'ತೀವ್ರ ಜ್ವರ',
+        'lbl-low-appetite': 'ಕಡಿಮೆ ಹಸಿವು?',
         'btn-calc': 'ಬೆಲೆ ಲೆಕ್ಕಹಾಕಿ',
         'btn-scan': 'ಸ್ಕ್ಯಾನ್ ಮಾಡಿ',
         'total-cattle': 'ಒಟ್ಟು ಜಾನುವಾರು',
@@ -1341,6 +1390,17 @@ const translations = {
         'opt-tharparkar': 'ಥಾರ್ಪಾರ್ಕರ್',
         'opt-jersey': 'ಜರ್ಸಿ',
         'opt-holstein': 'ಹೋಲ್ಸ್ಟೀನ್',
+
+        'lbl-vaccination': 'ಲಸಿಕೆ ಸ್ಥಿತಿ',
+        'lbl-lactation': 'ಹಾಲುಣಿಸುವ ಚಕ್ರ (1-10)',
+        'lbl-disease-hist': 'ರೋಗ ಇತಿಹಾಸ',
+        'opt-vac-none': 'ಯಾವುದೂ ಇಲ್ಲ / ತಿಳಿದಿಲ್ಲ',
+        'opt-vac-partial': 'ಭಾಗಶಃ ಲಸಿಕೆ ಹಾಕಲಾಗಿದೆ',
+        'opt-vac-full': 'ಸಂಪೂರ್ಣವಾಗಿ ಲಸಿಕೆ ಹಾಕಲಾಗಿದೆ',
+        'dis-fmd': 'ಕಾಲುಬಾಯಿ ಜ್ವರ (FMD)',
+        'dis-mastitis': 'ಕೆಚ್ಚಲು ಬಾವು (Mastitis)',
+        'dis-brucellosis': 'ಬ್ರೂಸೆಲೋಸಿಸ್',
+
 
         'dash-infra': 'ಫಾರ್ಮ್ ಮೂಲಸೌಕರ್ಯ',
         'subtitle-dashboard': 'ಸ್ಮಾರ್ಟ್ ಫಾರ್ಮ್ ನಿರ್ವಹಣಾ ವ್ಯವಸ್ಥೆ',
