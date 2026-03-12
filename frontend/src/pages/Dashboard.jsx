@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-import { Activity, AlertTriangle, DollarSign, CloudSun, BarChart3, Video, Warehouse, Map, Droplets, Wheat, Stethoscope, MapPin, ScrollText, TrendingUp, CircleDollarSign, LayoutGrid } from 'lucide-react';
+import { Activity, AlertTriangle, DollarSign, CloudSun, BarChart3, Video, Warehouse, Map, Droplets, Wheat, Stethoscope, MapPin, ScrollText, TrendingUp, CircleDollarSign, LayoutGrid, X, Camera, Plus, QrCode, MonitorSmartphone, BrainCircuit, Scan } from 'lucide-react';
+import QRCode from 'react-qr-code';
 import { useLanguage } from '../context/LanguageContext';
 import { Bar } from 'react-chartjs-2';
 import 'chart.js/auto';
@@ -10,6 +11,48 @@ const Dashboard = () => {
     const { t } = useLanguage();
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
+    
+    // CCTV Modal State
+    const [isCctvOpen, setIsCctvOpen] = useState(false);
+    const [cameras, setCameras] = useState([
+        { id: 1, name: "Shed 1 - Main Entrance", type: "cctv", active: true },
+        { id: 2, name: "Shed 2 - Milking Zone", type: "cctv", active: true }
+    ]);
+    const [stream, setStream] = useState(null);
+    const videoRef = React.useRef(null);
+    const [showAddOptions, setShowAddOptions] = useState(false);
+    const [ipInput, setIpInput] = useState('');
+    const [showQr, setShowQr] = useState(false);
+
+    const addIpCamera = () => {
+        if(ipInput.trim()) {
+            setCameras([...cameras, { id: Date.now(), name: `IP: ${ipInput}`, type: "cctv", active: true }]);
+            setIpInput('');
+            setShowAddOptions(false);
+        }
+    };
+
+    // Stop webcam if modal closes
+    useEffect(() => {
+        if (!isCctvOpen && stream) {
+            stream.getTracks().forEach(track => track.stop());
+            setStream(null);
+        }
+    }, [isCctvOpen]);
+
+    const startWebcam = async () => {
+        try {
+            const mediaStream = await navigator.mediaDevices.getUserMedia({ video: true });
+            setStream(mediaStream);
+            if (videoRef.current) {
+                videoRef.current.srcObject = mediaStream;
+            }
+            setCameras([...cameras, { id: Date.now(), name: `New Camera ${cameras.length + 1}`, type: "webcam", active: true }]);
+        } catch (err) {
+            console.error("Error accessing webcam", err);
+            alert("Could not access camera. Please allow permissions.");
+        }
+    };
 
     useEffect(() => {
         const fetchData = async () => {
@@ -60,6 +103,148 @@ const Dashboard = () => {
 
     return (
         <div className="space-y-8 animate-fade-in pb-10">
+            
+            {/* CCTV Modal */}
+            {isCctvOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+                    <div className="bg-white rounded-3xl overflow-hidden shadow-2xl w-full max-w-4xl flex flex-col max-h-[90vh]">
+                        {/* Modal Header */}
+                        <div className="bg-[#253D2E] p-4 flex justify-between items-center text-white">
+                            <div className="flex items-center gap-3">
+                                <Video className="w-6 h-6 text-[#B6E63E]" />
+                                <h2 className="font-bold text-lg">Live Farm Monitoring</h2>
+                            </div>
+                            <button onClick={() => setIsCctvOpen(false)} className="hover:bg-white/10 p-2 rounded-full transition-colors">
+                                <X className="w-6 h-6" />
+                            </button>
+                        </div>
+                        
+                        {/* Modal Body */}
+                        <div className="p-6 overflow-y-auto flex-1 bg-slate-50">
+                            
+                            {/* Main Video Area */}
+                            <div className="bg-black rounded-2xl aspect-video w-full mb-6 relative overflow-hidden group shadow-lg">
+                                {stream ? (
+                                    <video 
+                                        ref={videoRef} 
+                                        autoPlay 
+                                        playsInline 
+                                        className="w-full h-full object-cover"
+                                    />
+                                ) : (
+                                    <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-500">
+                                        <Camera className="w-16 h-16 animate-pulse opacity-50 mb-4" />
+                                        <p className="font-medium tracking-wide">Select a camera or add a new feed</p>
+                                    </div>
+                                )}
+                                
+                                {/* Overlay Badges */}
+                                <div className="absolute top-4 left-4 flex gap-2">
+                                    <div className="bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded-sm uppercase tracking-wider flex items-center gap-1">
+                                        <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></span> REC
+                                    </div>
+                                    <div className="bg-black/50 backdrop-blur-md text-white border border-white/10 text-[10px] font-bold px-2 py-1 rounded-sm uppercase">1080p 60fps</div>
+                                </div>
+                                <div className="absolute bottom-4 right-4 text-white/50 font-mono text-xs drop-shadow-md">
+                                    {new Date().toLocaleString()} | LAT: 12.9716° N, LONG: 77.5946° E
+                                </div>
+                            </div>
+                            
+                            {/* QR Code Overlay inside Video Area (if triggered) */}
+                            {showQr && (
+                                <div className="absolute inset-0 z-20 bg-white/95 backdrop-blur-sm rounded-2xl flex flex-col items-center justify-center p-6 text-center shadow-lg border border-slate-200 mt-0 !h-[50%] top-1/2 -translate-y-1/2">
+                                    <button onClick={() => setShowQr(false)} className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-800"><X className="w-5 h-5"/></button>
+                                    <h3 className="text-xl font-bold text-[#253D2E] mb-2">Connect Phone Camera</h3>
+                                    <p className="text-sm text-slate-600 mb-4 max-w-sm">Scan this QR code with your mobile device to temporarily use it as a live CCTV feed. Reduce & Reuse!</p>
+                                    <div className="bg-white p-3 shadow-inner rounded-xl flex items-center justify-center border border-slate-100">
+                                        <QRCode value={`${window.location.protocol}//${window.location.hostname}:5173/broadcast`} size={120} level="M" fgColor="#253D2E" />
+                                    </div>
+                                    <p className="mt-3 text-[10px] font-bold bg-amber-50 text-amber-600 border border-amber-200 px-3 py-1 rounded-full animate-pulse">Waiting for WebRTC link...</p>
+                                </div>
+                            )}
+
+                            {/* Grid Controls */}
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative">
+                                
+                                {/* Camera List */}
+                                <div className="md:col-span-2 space-y-4">
+                                    <div className="flex justify-between items-end">
+                                        <h3 className="font-bold text-[#253D2E] text-lg">Active Feeds</h3>
+                                        <div className="relative">
+                                            <button 
+                                                onClick={() => setShowAddOptions(!showAddOptions)}
+                                                className="text-sm font-bold bg-[#B6E63E] text-[#253D2E] px-3 py-1.5 rounded-lg flex items-center gap-1 hover:brightness-105 transition-all shadow-sm z-10 relative"
+                                            >
+                                                <Plus className="w-4 h-4" /> Add Camera
+                                            </button>
+
+                                            {showAddOptions && (
+                                                <div className="absolute right-0 bottom-[110%] mb-2 w-64 bg-white rounded-xl shadow-2xl border border-slate-200 p-2 z-[60] flex flex-col gap-1 origin-bottom-right">
+                                                    <button onClick={() => { startWebcam(); setShowAddOptions(false); }} className="w-full text-left px-3 py-2 hover:bg-slate-50 rounded-lg text-sm font-bold text-slate-800 flex items-center gap-2">
+                                                        <Camera className="w-4 h-4 text-indigo-500" /> Device Webcam
+                                                    </button>
+                                                    <hr className="border-slate-100 my-1" />
+                                                    <div className="px-3 py-2">
+                                                        <p className="text-xs font-bold text-slate-500 mb-2 flex items-center gap-1"><Video className="w-3 h-3" /> Add IP Camera (RTSP)</p>
+                                                        <div className="flex gap-2">
+                                                            <input 
+                                                                value={ipInput} 
+                                                                onChange={(e) => setIpInput(e.target.value)} 
+                                                                type="text" 
+                                                                placeholder="192.168.1.100" 
+                                                                className="w-full text-xs px-2 py-1.5 border border-slate-200 rounded-lg bg-slate-50 focus:outline-none focus:border-[#B6E63E]"
+                                                            />
+                                                            <button onClick={addIpCamera} className="bg-[#253D2E] text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-[#1a2e22]">Add</button>
+                                                        </div>
+                                                    </div>
+                                                    <hr className="border-slate-100 my-1" />
+                                                    <button onClick={() => { setShowQr(true); setShowAddOptions(false); }} className="w-full text-left px-3 py-2 hover:bg-slate-50 rounded-lg text-sm font-bold text-slate-800 flex items-center gap-2">
+                                                        <MonitorSmartphone className="w-4 h-4 text-emerald-500" /> Connect Phone (Live)
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="grid grid-cols-2 gap-3">
+                                        {cameras.map((cam) => (
+                                            <div key={cam.id} className="p-3 border border-slate-200 rounded-xl bg-white hover:border-[#B6E63E] hover:shadow-md cursor-pointer transition-all flex items-center gap-3">
+                                                <div className="bg-slate-100 p-2 rounded-lg text-slate-500">
+                                                    {cam.type === 'cctv' ? <Video className="w-5 h-5" /> : <Camera className="w-5 h-5 text-indigo-500" />}
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="text-sm font-bold text-slate-800 truncate">{cam.name}</p>
+                                                    <p className="text-[10px] text-emerald-600 font-bold uppercase tracking-wider">Online</p>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                                
+                                {/* Location Details */}
+                                <div className="space-y-4">
+                                    <h3 className="font-bold text-[#253D2E] text-lg">Location Context</h3>
+                                    <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-3">
+                                        <div className="flex items-start gap-3">
+                                            <MapPin className="w-5 h-5 text-red-500 mt-0.5" />
+                                            <div>
+                                                <p className="text-sm font-bold text-slate-800">Shed Location</p>
+                                                <p className="text-xs text-slate-500">12 Acres Campus, Plot 4B</p>
+                                            </div>
+                                        </div>
+                                        <hr className="border-slate-100" />
+                                        <div className="bg-slate-100 rounded-lg p-3 text-center cursor-pointer hover:bg-slate-200 transition-colors">
+                                            <p className="text-xs font-bold text-[#4A6741]">View on Google Maps</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <header className="flex justify-between items-end mb-8 animate-fade-in">
                 <div>
                     <h1 className="text-4xl font-black text-[#253D2E] tracking-tight leading-tight">{t('title-dashboard')}</h1>
@@ -155,12 +340,12 @@ const Dashboard = () => {
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {/* 2. INFRASTRUCTURE & RESOURCES */}
-                <div className="glass-card p-6 lg:col-span-1 space-y-6">
-                    <h2 className="text-lg font-bold text-[#253D2E] flex items-center gap-2"><Warehouse size={20} className="text-[#4A6741]" /> {t('dash-infra')}</h2>
-
-                    <div className="grid grid-cols-3 gap-4 text-center">
+                <div className="glass-card p-6 lg:col-span-1 border border-slate-200 shadow-[2px_2px_0px_#B6E63E] space-y-6 flex flex-col justify-between">
+                    <div>
+                        <h2 className="text-lg font-black text-[#253D2E] flex items-center gap-2 mb-4"><Warehouse size={20} className="text-[#B6E63E]" /> {t('dash-infra')}</h2>
+                        <div className="grid grid-cols-3 gap-2 text-center mb-6">
                         <div className="p-3 bg-white rounded-lg border border-gray-100 shadow-sm">
                             <Map size={24} className="mx-auto text-[#253D2E] mb-1" />
                             <p className="text-xl font-bold">{data.infrastructure.acres}</p>
@@ -171,35 +356,99 @@ const Dashboard = () => {
                             <p className="text-xl font-bold">{data.infrastructure.sheds}</p>
                             <p className="text-xs text-gray-500">{t('dash-sheds')}</p>
                         </div>
-                        <div className="p-3 bg-white rounded-lg border border-gray-100 shadow-sm">
+                        <div 
+                            onClick={() => setIsCctvOpen(true)}
+                            className="p-3 bg-white rounded-lg border border-gray-100 shadow-sm cursor-pointer hover:shadow-md hover:border-[#B6E63E] transition-all group"
+                        >
                             <div className="relative inline-block">
-                                <Video size={24} className="mx-auto text-[#253D2E] mb-1" />
+                                <Video size={24} className="mx-auto text-[#253D2E] mb-1 group-hover:text-[#B6E63E] transition-colors" />
                                 <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
                             </div>
-                            <p className="text-xs font-bold mt-1">CCTV</p>
-                            <p className="text-[10px] text-[#4A6741] font-bold">{t('status-live')}</p>
+                            <p className="text-xs font-bold mt-1 group-hover:text-[#253D2E]">CCTV</p>
+                            <p className="text-[10px] text-[#4A6741] font-bold group-hover:text-[#253D2E]">{t('status-live')}</p>
                         </div>
                     </div>
+                    </div>
+                                {/* AI 3D SHED SIMULATION */}
+                <div className="rounded-3xl p-0 lg:col-span-1 bg-slate-900 relative overflow-hidden group shadow-[4px_4px_0px_rgba(37,61,46,0.3)] min-h-[300px] border border-slate-800">
+                    
+                    {/* Background CCTV Image */}
+                    <img src="/cctv_realistic_shed.png" alt="CCTV Feed" className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-all duration-700 pointer-events-none" />
+                    
+                    {/* Vignette Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-slate-900/50 pt-4 px-4 flex flex-col justify-between">
+                        
+                        {/* Header */}
+                        <div className="flex justify-between items-start z-10 w-full">
+                            <div>
+                                <h2 className="text-lg font-bold text-white flex items-center gap-2 mb-1 drop-shadow-md"><BrainCircuit size={20} className="text-[#B6E63E]" /> AI Shed Sandbox</h2>
+                                <p className="text-[10px] text-emerald-400 font-bold uppercase tracking-widest drop-shadow-md flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Live 3D Inference</p>
+                            </div>
+                            <div className="bg-black/50 backdrop-blur-sm px-2 py-1 rounded text-[10px] text-white font-mono border border-white/10 uppercase tracking-wider">Cam 02</div>
+                        </div>
+                        
+                        {/* Realistic AI Bounding Box Overlay */}
+                        <div className="absolute inset-0 overflow-hidden pointer-events-none z-10">
+                            {/* Scanning Line */}
+                            <div className="w-full h-1 bg-emerald-400/80 absolute top-0 shadow-[0_0_20px_#4ade80] animate-[scan_3s_ease-in-out_infinite_alternate]"></div>
 
-                    <div className="space-y-4 pt-4 border-t">
-                        <div>
-                            <div className="flex justify-between text-xs font-bold text-gray-500 mb-1">
-                                <span className="flex items-center gap-1"><Wheat size={14} /> {t('dash-feed')}</span> <span>{data.infrastructure.feed_stock}%</span>
+                            {/* Center Cow Bounding Box */}
+                            <div className="absolute top-[35%] left-[25%] w-[45%] h-[40%] border-2 border-[#B6E63E] bg-[#B6E63E]/10 rounded shadow-[0_0_15px_rgba(182,230,62,0.3)] transition-all duration-300">
+                                {/* Corner Accents */}
+                                <div className="absolute -top-1 -left-1 w-3 h-3 border-t-2 border-l-2 border-white"></div>
+                                <div className="absolute -top-1 -right-1 w-3 h-3 border-t-2 border-r-2 border-white"></div>
+                                <div className="absolute -bottom-1 -left-1 w-3 h-3 border-b-2 border-l-2 border-white"></div>
+                                <div className="absolute -bottom-1 -right-1 w-3 h-3 border-b-2 border-r-2 border-white"></div>
+                                
+                                {/* Label Tooltip */}
+                                <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-black/80 backdrop-blur-sm text-white text-[10px] px-2 py-0.5 rounded border border-[#B6E63E]/50 flex items-center gap-1.5 whitespace-nowrap shadow-xl">
+                                    <span className="font-bold text-[#B6E63E]">ID:</span> 492
+                                    <span className="w-px h-2 bg-white/30"></span>
+                                    <span className="font-bold text-sky-400">Yield:</span> 12L
+                                    <span className="w-px h-2 bg-white/30"></span>
+                                    <span className="text-emerald-400 font-bold uppercase">Healthy</span>
+                                </div>
+
+                                {/* Heatmap Overlay (simulating thermal or depth data) */}
+                                <div className="absolute inset-0 bg-gradient-to-tr from-rose-500/10 via-transparent to-amber-500/10 mix-blend-overlay"></div>
+                                
+                                {/* Target Crosshair */}
+                                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 rounded-full border border-white/50 flex flex-col justify-center items-center">
+                                    <div className="w-1 h-1 bg-white rounded-full animate-ping"></div>
+                                </div>
                             </div>
-                            <div className="h-2 bg-gray-200 rounded-full overflow-hidden"><div className="h-full bg-[#B6E63E]" style={{ width: `${data.infrastructure.feed_stock}%` }}></div></div>
+
+                            {/* Distant Object Bounding Box */}
+                            <div className="absolute top-[30%] right-[15%] w-[15%] h-[20%] border border-sky-400/50 bg-sky-400/10 rounded">
+                                <div className="absolute -bottom-4 right-0 bg-black/70 text-[8px] text-sky-300 px-1 py-0.5 rounded whitespace-nowrap border border-sky-400/30">Worker detected (98%)</div>
+                            </div>
                         </div>
-                        <div>
-                            <div className="flex justify-between text-xs font-bold text-gray-500 mb-1">
-                                <span className="flex items-center gap-1"><Droplets size={14} /> {t('dash-water')}</span> <span>{data.infrastructure.water_tank}%</span>
+                        
+                        {/* Footer Overlay */}
+                        <div className="mt-auto mb-4 bg-black/80 backdrop-blur-md rounded-lg p-3 border border-[#B6E63E]/30 shadow-xl z-10 w-full relative overflow-hidden">
+                            {/* Scanning Data Stream Effect */}
+                            <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#B6E63E]/50 to-transparent"></div>
+                            <div className="flex justify-between items-end text-[11px] text-slate-300 gap-2">
+                                <div className="space-y-1 overflow-hidden min-w-0">
+                                    <span className="flex items-center gap-1.5 font-mono text-white"><Scan size={12} className="text-[#B6E63E] animate-spin-slow"/> YOLOv8 Engine</span>
+                                    <div className="font-mono text-[9px] text-slate-400 leading-tight">
+                                        <div className="truncate">[LOG] TGT_DETECT CONF:0.94</div>
+                                        <div className="truncate">[LOG] POS X:144 Y:90 Z:24</div>
+                                        <div className="truncate">[LOG] THERMAL_OK: 38.6C</div>
+                                    </div>
+                                </div>
+                                <div className="flex flex-col items-end shrink-0">
+                                    <span className="text-emerald-400 font-bold uppercase tracking-widest bg-emerald-400/10 px-2 py-0.5 rounded inline-block mb-1 border border-emerald-400/20">Active</span>
+                                    <span className="font-mono text-[9px]">24 FPS | 42 ms</span>
+                                </div>
                             </div>
-                            <div className="h-2 bg-gray-200 rounded-full overflow-hidden"><div className="h-full bg-blue-500" style={{ width: `${data.infrastructure.water_tank}%` }}></div></div>
                         </div>
                     </div>
-                </div>
+                </div>  </div>
 
                 {/* 3. CHART */}
-                <div className="glass-card p-6 lg:col-span-2">
-                    <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2 mb-4"><BarChart3 size={20} className="text-indigo-500" /> {t('dash-trends')}</h2>
+                <div className="glass-card p-6 lg:col-span-2 border border-slate-200 shadow-[2px_2px_0px_rgba(0,0,0,0.1)]">
+                    <h2 className="text-lg font-black text-[#253D2E] flex items-center gap-2 mb-4"><BarChart3 size={20} className="text-indigo-500" /> {t('dash-trends')}</h2>
                     <div className="h-56">
                         <Bar data={chartConfig} options={{ responsive: true, maintainAspectRatio: false }} />
                     </div>
