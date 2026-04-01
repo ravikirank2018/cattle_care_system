@@ -12,6 +12,7 @@ import Health from './pages/Health';
 import Services from './pages/Services';
 import Alerts from './pages/Alerts';
 import Settings from './pages/Settings';
+import AcousticDetection from './pages/AcousticDetection';
 import Predict from './pages/Predict';
 import MarketTrade from './pages/MarketTrade';
 import ProjectWorkflow from './pages/ProjectWorkflow';
@@ -28,10 +29,17 @@ import AlgorithmObjectives from './pages/AlgorithmObjectives';
 import ProblemStatement from './pages/ProblemStatement';
 import SystemArchitectureDemo from './pages/SystemArchitectureDemo';
 import ModelPerformance from './pages/ModelPerformance';
+import MarketSize from './pages/MarketSize';
+import TechStack from './pages/TechStack';
+import Architecture from './pages/Architecture';
+import USP from './pages/USP';
+import IotNetwork from './pages/IotNetwork';
+import TestingDashboard from './pages/TestingDashboard';
+import ResultsAnalysis from './pages/ResultsAnalysis';
 import { LanguageProvider, useLanguage } from './context/LanguageContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import './App.css';
-import { LayoutDashboard, Coins, Stethoscope, Lightbulb, LogOut, Menu, X, Bell, Settings as SettingsIcon, LayoutGrid, ScrollText } from 'lucide-react';
+import { LayoutDashboard, Coins, Stethoscope, Lightbulb, LogOut, Menu, X, Bell, Settings as SettingsIcon, LayoutGrid, ScrollText, PieChart, Layers, Server, Sparkles, TrendingUp } from 'lucide-react';
 
 const Sidebar = ({ isOpen, onClose }) => {
     const { t, currentLang, setCurrentLang } = useLanguage();
@@ -89,6 +97,29 @@ const Sidebar = ({ isOpen, onClose }) => {
                     </Link>
                     <Link to="/alerts" onClick={onClose} className={`p-4 rounded-xl flex items-center gap-4 transition-all duration-200 ${isActive('/alerts')}`}>
                         <Bell size={20} /> <span className="font-medium">{t('nav-alerts')}</span>
+                    </Link>
+                    <Link to="/market-size" onClick={onClose} className={`p-4 rounded-xl flex items-center gap-4 transition-all duration-200 ${isActive('/market-size')}`}>
+                        <PieChart size={20} /> <span className="font-medium">Market Size</span>
+                    </Link>
+                    <Link to="/tech-stack" onClick={onClose} className={`p-4 rounded-xl flex items-center gap-4 transition-all duration-200 ${isActive('/tech-stack')}`}>
+                        <Layers size={20} /> <span className="font-medium">Tech Stack</span>
+                    </Link>
+                    <Link to="/architecture" onClick={onClose} className={`p-4 rounded-xl flex items-center gap-4 transition-all duration-200 ${isActive('/architecture')}`}>
+                        <Server size={20} /> <span className="font-medium">Architecture</span>
+                    </Link>
+                    <Link to="/usp" onClick={onClose} className={`p-4 rounded-xl flex items-center gap-4 transition-all duration-200 ${isActive('/usp')}`}>
+                        <Sparkles size={20} /> <span className="font-medium">USP Features</span>
+                    </Link>
+                    <Link to="/results" onClick={onClose} className={`p-4 rounded-xl flex items-center gap-4 transition-all duration-200 ${isActive('/results')}`}>
+                        <TrendingUp size={20} /> <span className="font-medium">Results & Analysis</span>
+                    </Link>
+                    <Link to="/acoustic-detection" onClick={onClose} className={`p-4 rounded-xl flex items-center gap-4 transition-all duration-200 ${isActive('/acoustic-detection')}`}>
+                        <svg className="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" /></svg>
+                        <span className="font-medium">Audio Surveillance</span>
+                    </Link>
+                    <Link to="/testing" onClick={onClose} className={`p-4 rounded-xl flex items-center gap-4 transition-all duration-200 ${isActive('/testing')}`}>
+                        <svg className="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        <span className="font-medium">Testing & QA</span>
                     </Link>
                     <Link to="/settings" onClick={onClose} className={`p-4 rounded-xl flex items-center gap-4 transition-all duration-200 ${isActive('/settings')}`}>
                         <SettingsIcon size={20} /> <span className="font-medium">{t('nav-settings')}</span>
@@ -157,6 +188,14 @@ const MainContent = () => {
                 <Route path="/problem-statement" element={<ProblemStatement />} />
                 <Route path="/system-arch-demo" element={<SystemArchitectureDemo />} />
                 <Route path="/workflow" element={<ProjectWorkflow />} />
+                <Route path="/market-size" element={<MarketSize />} />
+                <Route path="/tech-stack" element={<TechStack />} />
+                <Route path="/architecture" element={<Architecture />} />
+                <Route path="/usp" element={<USP />} />
+                <Route path="/iot-network" element={<IotNetwork />} />
+                <Route path="/acoustic-detection" element={<ProtectedRoute><AcousticDetection /></ProtectedRoute>} />
+                <Route path="/testing" element={<TestingDashboard />} />
+                <Route path="/results" element={<ResultsAnalysis />} />
 
                 {/* Hidden Test Page */}
                 <Route path="/test-api" element={<TestPage />} />

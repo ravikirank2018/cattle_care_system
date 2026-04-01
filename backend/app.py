@@ -41,12 +41,7 @@ bcrypt = Bcrypt(app)
 # MONGO_URI = "..." 
 
 # API Key Rotation Setup
-# API Key Rotation Setup
-<<<<<<< HEAD
-PAID_KEY = "AIzaSyAWL-Pq0ynT2vKRVPg1VAJNATXgG_rRGJI"
-=======
-
->>>>>>> 9450e49ce15415338696c24ef8048c027d0db1af
+PAID_KEY = "AIzaSyBEamBjQ3GplNzbaLGLFV3jc2Sgh7K6zfk"
 
 API_KEYS = [PAID_KEY]
 
@@ -85,7 +80,7 @@ def rotate_api_key():
 
 # Configure Initial Gemini with validation
 print(f"🔑 Initializing Gemini with {len(API_KEYS)} keys...")
-model_name = 'gemini-1.5-flash'
+model_name = 'gemini-2.5-flash'
 available_models = []
 
 for i in range(len(API_KEYS)):
@@ -104,8 +99,8 @@ for i in range(len(API_KEYS)):
             print("🚨 CRITICAL: All provided API keys failed validation.")
 
 if available_models:
-    flash_models = [m for m in available_models if 'gemini-1.5-flash' in m]
-    pro_models = [m for m in available_models if 'gemini-1.5-pro' in m]
+    flash_models = [m for m in available_models if 'flash' in m.lower()]
+    pro_models = [m for m in available_models if 'pro' in m.lower()]
 
     if pro_models:
         model_name = pro_models[0]
@@ -605,6 +600,75 @@ def register():
     print(f"User registered: {username}") # Debug
     
     return jsonify({"success": True, "message": "User created successfully"}), 201
+
+@app.route('/api/analyze_audio', methods=['POST'])
+def analyze_audio():
+    try:
+        data = request.json
+        audio_data = data.get('audio', '')
+        
+        if not audio_data:
+            return jsonify({"success": False, "error": "No audio provided"}), 400
+
+        system_instruction = """
+        You are an expert farm animal acoustic analyst and veterinary AI.
+        Analyze the provided audio of a cow. 
+        Detect if there are any specific acoustic events such as:
+        - Normal mooing
+        - Pain vocalizations
+        - Abnormal breathing or coughing
+        - Heat stress panting
+        - Distress calls
+
+        Provide your response in JSON format exactly as follows:
+        {
+            "status": "Normal" or "Warning" or "Critical",
+            "detected_event": "Short description of the sound (e.g., 'Normal Mooing', 'Pain Vocalization')",
+            "confidence": "High" or "Medium" or "Low",
+            "ai_suggestion": "Detailed AI suggested output based on the sound. If it's distress, suggest immediate actions. If normal, state that the cow seems fine.",
+            "recommended_action": "A short bullet point action (e.g., 'Monitor closely', 'Call Vet', 'Provide Water')"
+        }
+        """
+
+        if 'base64,' in audio_data:
+            audio_data = audio_data.split('base64,')[1]
+            
+        audio_bytes = base64.b64decode(audio_data)
+        audio_part = {"mime_type": "audio/mp3", "data": audio_bytes} # default mime format for upload / gemini takes it
+        
+        response = generate_with_retry(model, [system_instruction, audio_part])
+        
+        raw_text = response.text
+        print(f"DEBUG Audio AI Response: {raw_text}")
+        
+        cleaned_text = raw_text.replace('```json', '').replace('```', '').strip()
+        
+        try:
+            # Find the first { and last } to extract JSON block when AI adds conversational text
+            start_index = cleaned_text.find('{')
+            end_index = cleaned_text.rfind('}')
+            
+            if start_index != -1 and end_index != -1 and end_index > start_index:
+                cleaned_text = cleaned_text[start_index:end_index+1]
+                
+            analysis = json.loads(cleaned_text)
+        except json.JSONDecodeError as e:
+            print(f"JSON Parse Error: {e} - Raw Output: {raw_text}")
+            # Fallback robust output
+            analysis = {
+                "status": "Warning",
+                "detected_event": "AI Analysis completed but format was unexpected",
+                "confidence": "Low",
+                "ai_suggestion": raw_text,
+                "recommended_action": "Manually review the audio or try again."
+            }
+        
+        return jsonify(analysis)
+
+    except Exception as e:
+        print(f"Audio Analysis Error: {e}")
+        return jsonify({"error": str(e)}), 500
+
 
 @app.route('/api/auth/login', methods=['POST'])
 def login():

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-import { Activity, AlertTriangle, DollarSign, CloudSun, BarChart3, Video, Warehouse, Map, Droplets, Wheat, Stethoscope, MapPin, ScrollText, TrendingUp, CircleDollarSign, LayoutGrid, X, Camera, Plus, QrCode, MonitorSmartphone, BrainCircuit, Scan } from 'lucide-react';
+import { Activity, AlertTriangle, DollarSign, CloudSun, BarChart3, Video, Warehouse, Map, Droplets, Wheat, Stethoscope, MapPin, ScrollText, TrendingUp, CircleDollarSign, LayoutGrid, X, Camera, Plus, QrCode, MonitorSmartphone, BrainCircuit, Scan, Network, WifiOff, Cpu } from 'lucide-react';
 import QRCode from 'react-qr-code';
 import { useLanguage } from '../context/LanguageContext';
 import { Bar } from 'react-chartjs-2';
@@ -340,37 +340,41 @@ const Dashboard = () => {
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {/* 2. INFRASTRUCTURE & RESOURCES */}
-                <div className="glass-card p-6 lg:col-span-1 border border-slate-200 shadow-[2px_2px_0px_#B6E63E] space-y-6 flex flex-col justify-between">
-                    <div>
-                        <h2 className="text-lg font-black text-[#253D2E] flex items-center gap-2 mb-4"><Warehouse size={20} className="text-[#B6E63E]" /> {t('dash-infra')}</h2>
-                        <div className="grid grid-cols-3 gap-2 text-center mb-6">
-                        <div className="p-3 bg-white rounded-lg border border-gray-100 shadow-sm">
-                            <Map size={24} className="mx-auto text-[#253D2E] mb-1" />
-                            <p className="text-xl font-bold">{data.infrastructure.acres}</p>
-                            <p className="text-xs text-gray-500">{t('dash-acres')}</p>
-                        </div>
-                        <div className="p-3 bg-white rounded-lg border border-gray-100 shadow-sm">
-                            <Warehouse size={24} className="mx-auto text-[#4A6741] mb-1" />
-                            <p className="text-xl font-bold">{data.infrastructure.sheds}</p>
-                            <p className="text-xs text-gray-500">{t('dash-sheds')}</p>
-                        </div>
-                        <div 
-                            onClick={() => setIsCctvOpen(true)}
-                            className="p-3 bg-white rounded-lg border border-gray-100 shadow-sm cursor-pointer hover:shadow-md hover:border-[#B6E63E] transition-all group"
-                        >
-                            <div className="relative inline-block">
-                                <Video size={24} className="mx-auto text-[#253D2E] mb-1 group-hover:text-[#B6E63E] transition-colors" />
-                                <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
+                {/* LEFT COLUMN: INFRA & SIMULATION */}
+                <div className="lg:col-span-1 space-y-6">
+                    {/* 2. INFRASTRUCTURE & RESOURCES */}
+                    <div className="glass-card p-6 border border-slate-200 shadow-[2px_2px_0px_#B6E63E] space-y-6 flex flex-col justify-between">
+                        <div>
+                            <h2 className="text-lg font-black text-[#253D2E] flex items-center gap-2 mb-4"><Warehouse size={20} className="text-[#B6E63E]" /> {t('dash-infra')}</h2>
+                            <div className="grid grid-cols-3 gap-2 text-center mb-6">
+                                <div className="p-3 bg-white rounded-lg border border-gray-100 shadow-sm">
+                                    <Map size={24} className="mx-auto text-[#253D2E] mb-1" />
+                                    <p className="text-xl font-bold">{data.infrastructure.acres}</p>
+                                    <p className="text-xs text-gray-500">{t('dash-acres')}</p>
+                                </div>
+                                <div className="p-3 bg-white rounded-lg border border-gray-100 shadow-sm">
+                                    <Warehouse size={24} className="mx-auto text-[#4A6741] mb-1" />
+                                    <p className="text-xl font-bold">{data.infrastructure.sheds}</p>
+                                    <p className="text-xs text-gray-500">{t('dash-sheds')}</p>
+                                </div>
+                                <div 
+                                    onClick={() => setIsCctvOpen(true)}
+                                    className="p-3 bg-white rounded-lg border border-gray-100 shadow-sm cursor-pointer hover:shadow-md hover:border-[#B6E63E] transition-all group"
+                                >
+                                    <div className="relative inline-block">
+                                        <Video size={24} className="mx-auto text-[#253D2E] mb-1 group-hover:text-[#B6E63E] transition-colors" />
+                                        <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+                                    </div>
+                                    <p className="text-xs font-bold mt-1 group-hover:text-[#253D2E]">CCTV</p>
+                                    <p className="text-[10px] text-[#4A6741] font-bold group-hover:text-[#253D2E]">{t('status-live')}</p>
+                                </div>
                             </div>
-                            <p className="text-xs font-bold mt-1 group-hover:text-[#253D2E]">CCTV</p>
-                            <p className="text-[10px] text-[#4A6741] font-bold group-hover:text-[#253D2E]">{t('status-live')}</p>
                         </div>
                     </div>
-                    </div>
-                                {/* AI 3D SHED SIMULATION */}
-                <div className="rounded-3xl p-0 lg:col-span-1 bg-slate-900 relative overflow-hidden group shadow-[4px_4px_0px_rgba(37,61,46,0.3)] min-h-[300px] border border-slate-800">
+
+                    {/* AI 3D SHED SIMULATION */}
+                    <div className="rounded-3xl p-0 bg-slate-900 relative overflow-hidden group shadow-[4px_4px_0px_rgba(37,61,46,0.3)] min-h-[300px] border border-slate-800">
                     
                     {/* Background CCTV Image */}
                     <img src="/cctv_realistic_shed.png" alt="CCTV Feed" className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-all duration-700 pointer-events-none" />
@@ -443,15 +447,50 @@ const Dashboard = () => {
                                 </div>
                             </div>
                         </div>
+                        </div>
                     </div>
-                </div>  </div>
+                </div>
 
-                {/* 3. CHART */}
-                <div className="glass-card p-6 lg:col-span-2 border border-slate-200 shadow-[2px_2px_0px_rgba(0,0,0,0.1)]">
-                    <h2 className="text-lg font-black text-[#253D2E] flex items-center gap-2 mb-4"><BarChart3 size={20} className="text-indigo-500" /> {t('dash-trends')}</h2>
-                    <div className="h-56">
-                        <Bar data={chartConfig} options={{ responsive: true, maintainAspectRatio: false }} />
+                {/* RIGHT COLUMN: TRENDS & MESH */}
+                <div className="lg:col-span-3 space-y-6">
+                    {/* 3. CHART */}
+                    <div className="glass-card p-6 border border-slate-200 shadow-[2px_2px_0px_rgba(0,0,0,0.1)]">
+                        <h2 className="text-lg font-black text-[#253D2E] flex items-center gap-2 mb-4"><BarChart3 size={20} className="text-indigo-500" /> {t('dash-trends')}</h2>
+                        <div className="h-56">
+                            <Bar data={chartConfig} options={{ responsive: true, maintainAspectRatio: false }} />
+                        </div>
                     </div>
+
+                    {/* 4. IOT MESH NETWORK PROTOTYPE */}
+                    <Link to="/iot-network" className="glass-card p-6 border border-slate-200 shadow-[2px_2px_0px_#253D2E] hover:shadow-[4px_4px_0px_#B6E63E] transition-all cursor-pointer group flex flex-col justify-between">
+                        <div className="flex justify-between items-start mb-4">
+                            <h2 className="text-lg font-black text-[#253D2E] flex items-center gap-2"><Network size={20} className="text-[#4A6741]" /> IoT Mesh Network</h2>
+                            <span className="bg-[#B6E63E]/20 text-[#253D2E] text-[10px] font-bold px-2 py-1 rounded border border-[#B6E63E]">OFFLINE PROTOTYPE</span>
+                        </div>
+                        
+                        <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-200">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-full bg-white border border-slate-300 flex items-center justify-center relative">
+                                    <span className="absolute w-full h-full rounded-full border border-emerald-500 animate-ping opacity-50"></span>
+                                    <Cpu size={20} className="text-slate-700" />
+                                </div>
+                                <div>
+                                    <p className="font-bold text-slate-800 text-sm">Edge Nodes Active</p>
+                                    <p className="text-[10px] text-slate-500 font-mono">Forming ad-hoc network</p>
+                                </div>
+                            </div>
+                            
+                            <div className="flex flex-col items-end">
+                                <p className="font-black text-xl text-[#253D2E]">24<span className="text-xs text-slate-500 font-normal ml-1">nodes</span></p>
+                                <p className="text-[9px] font-bold text-emerald-600 uppercase flex items-center gap-1"><WifiOff size={10}/> Synced</p>
+                            </div>
+                        </div>
+                        
+                        <div className="mt-4 text-xs text-slate-500 flex items-center justify-between">
+                            <span className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span> Click to view mesh simulation</span>
+                            <TrendingUp size={14} className="text-[#4A6741] group-hover:text-[#B6E63E] transition-colors" />
+                        </div>
+                    </Link>
                 </div>
             </div>
 

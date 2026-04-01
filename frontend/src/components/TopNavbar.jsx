@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Coins, Stethoscope, Lightbulb, Bell, Settings, Menu, X, ScrollText, LayoutGrid } from 'lucide-react';
+import { LayoutDashboard, Coins, Stethoscope, Lightbulb, Bell, Settings, Menu, X, ScrollText, LayoutGrid, Mic } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 
@@ -42,6 +42,9 @@ const TopNavbar = () => {
                     </Link>
                     <Link to="/cows" className={`px-4 py-2 rounded-lg flex items-center gap-2 transition-all duration-300 text-sm ${isActive('/cows')}`}>
                         <ScrollText size={18} /> {t('nav-cows') || 'Cows'}
+                    </Link>
+                    <Link to="/acoustic-detection" className={`px-4 py-2 rounded-lg flex items-center gap-2 transition-all duration-300 text-sm ${isActive('/acoustic-detection')}`}>
+                        <Mic size={18} /> Audio
                     </Link>
                     <Link to="/services" className={`px-4 py-2 rounded-lg flex items-center gap-2 transition-all duration-300 text-sm ${isActive('/services')}`}>
                         <LayoutGrid size={18} /> {t('nav-services') || 'Services'}
@@ -96,6 +99,9 @@ const TopNavbar = () => {
                     </Link>
                     <Link to="/cows" onClick={() => setIsMenuOpen(false)} className={`p-4 rounded-xl flex items-center gap-4 ${isActive('/cows')}`}>
                         <ScrollText size={20} /> {t('nav-cows')}
+                    </Link>
+                    <Link to="/acoustic-detection" onClick={() => setIsMenuOpen(false)} className={`p-4 rounded-xl flex items-center gap-4 ${isActive('/acoustic-detection')}`}>
+                        <Mic size={20} /> Audio Surveillance
                     </Link>
                     <Link to="/services" onClick={() => setIsMenuOpen(false)} className={`p-4 rounded-xl flex items-center gap-4 ${isActive('/services')}`}>
                         <LayoutGrid size={20} /> {t('nav-services')}
